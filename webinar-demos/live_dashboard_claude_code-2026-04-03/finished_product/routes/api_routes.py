@@ -10,9 +10,24 @@ def create_api_blueprint(api_controller):
     def get_data():
         return api_controller.get_data()
 
-    @bp.route("/refresh", methods=["POST"])
+    @bp.route("/sync", methods=["POST"])
     @login_required
-    def refresh_data():
-        return api_controller.refresh_data()
+    def sync_data():
+        return api_controller.sync_data()
+
+    @bp.route("/leads/<int:index>", methods=["PUT"])
+    @login_required
+    def update_lead(index):
+        return api_controller.update_lead(index)
+
+    @bp.route("/invoices/<int:index>", methods=["PUT"])
+    @login_required
+    def update_invoice(index):
+        return api_controller.update_invoice(index)
+
+    @bp.route("/projects/<int:index>", methods=["PUT"])
+    @login_required
+    def update_project(index):
+        return api_controller.update_project(index)
 
     return bp

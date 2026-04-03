@@ -1,31 +1,40 @@
-"""Standalone script: normalize raw data files into data/normalized.json."""
+"""Standalone script: normalize raw Drive data and reconcile with existing Sheets."""
 
 import sys
 import os
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from config import Config
-from repositories.data_repository import DataRepository
+from services.drive_service import DriveService
 from services.sheets_service import SheetsService
-from services.reddit_service import RedditService
-from services.etl_service import ETLService
+from services.openai_service import OpenAIService
 
 
 def main():
-    print("Normalizing data...")
+    print("Normalizing and reconciling data...")
 
-    repo = DataRepository(Config.DATA_DIR)
-    # ETLService needs these for extract, but we only use normalize here
-    sheets_svc = SheetsService(Config.CREDENTIALS_PATH, Config.TOKEN_PATH)
-    reddit_svc = RedditService(Config.APIFY_TOKEN)
-    etl = ETLService(sheets_svc, reddit_svc, repo, Config)
+    drive = DriveService()
+    sheets = SheetsService()
+    openai_svc = OpenAIService()
 
-    sheets_count, reddit_count = etl.normalize()
-    print(
-        f"Done. {sheets_count} Sheets rows + {reddit_count} Reddit posts "
-        "written to data/normalized.json"
-    )
+    # Scan all folders for files
+    new_files = drive.scan_all_folders()
+
+    for object_type, files in new_files.items():
+        print(f"\nProcessing {object_type} ({len(files)} files)...")
+        for file_info in files:
+            try:
+                headers, rows = drive.read_spreadsheet(file_info["id"])
+                if not headers or not rows:
+                    print(f"  Skipping {file_info['name']} (empty)")
+                    continue
+
+                normalized = openai_svc.normalize(headers, rows, object_type)
+                print(f"  {file_info['name']}: {len(normalized)} records normalized")
+            except Exception as e:
+                print(f"  ERROR processing {file_info['name']}: {e}")
+
+    print("\nDone.")
 
 
 if __name__ == "__main__":

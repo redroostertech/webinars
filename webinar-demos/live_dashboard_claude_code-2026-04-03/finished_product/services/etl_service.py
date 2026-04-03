@@ -1,103 +1,139 @@
+"""Orchestrate the full ETL pipeline: Drive -> normalize -> reconcile -> Sheets."""
+
+import json
+import os
 from datetime import datetime, timezone
+
+import config
 
 
 class ETLService:
-    """Single responsibility: orchestrate the full Extract-Transform-Load pipeline."""
 
-    def __init__(self, sheets_service, reddit_service, data_repository, config):
+    def __init__(self, drive_service, sheets_service, openai_service):
+        self._drive = drive_service
         self._sheets = sheets_service
-        self._reddit = reddit_service
-        self._repo = data_repository
-        self._config = config
+        self._openai = openai_service
+        self._state_path = os.path.join(config.DATA_DIR, "sync_state.json")
+        os.makedirs(config.DATA_DIR, exist_ok=True)
 
-    def extract_sheets(self):
-        raw = self._sheets.fetch(self._config.GOOGLE_SHEET_ID)
-        self._repo.save_sheets_raw(raw)
-        return len(raw.get("rows", []))
+    def _load_state(self):
+        if os.path.exists(self._state_path):
+            with open(self._state_path, "r") as f:
+                return json.load(f)
+        return {}
 
-    def extract_reddit(self):
-        posts = self._reddit.fetch(
-            self._config.REDDIT_SUBREDDIT,
-            max_items=25,
-        )
-        self._repo.save_reddit_raw(posts)
-        return len(posts)
-
-    def normalize(self):
-        sheets_raw = self._repo.get_sheets_raw()
-        reddit_raw = self._repo.get_reddit_raw()
-
-        sheets_data = self._normalize_sheets(sheets_raw)
-        reddit_data = self._normalize_reddit(reddit_raw)
-
-        self._repo.save_normalized(sheets_data, reddit_data)
-        return len(sheets_data), len(reddit_data)
+    def _save_state(self, state):
+        with open(self._state_path, "w") as f:
+            json.dump(state, f, indent=2, default=str)
 
     def run_full_pipeline(self):
-        results = {"sheets_rows": 0, "reddit_posts": 0, "errors": []}
+        """Run the complete ETL pipeline. Handles partial failures gracefully."""
+        state = self._load_state()
+        last_sync = state.get("last_sync_times", {})
+        errors = []
+        files_processed = 0
+        records_added = 0
 
+        # Step 1: Scan Drive folders
         try:
-            results["sheets_rows"] = self.extract_sheets()
+            new_files = self._drive.scan_all_folders(last_sync)
         except Exception as e:
-            results["errors"].append(f"Sheets fetch failed: {e}")
+            return {
+                "status": "error",
+                "errors": [f"Drive scan failed: {str(e)}"],
+                "files_processed": 0,
+                "records_added": 0,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
 
-        try:
-            results["reddit_posts"] = self.extract_reddit()
-        except Exception as e:
-            results["errors"].append(f"Reddit fetch failed: {e}")
+        # Step 2: Read existing data from Sheets
+        existing = {"leads": [], "invoices": [], "projects": []}
+        for tab_name in existing:
+            try:
+                headers, rows = self._sheets.read_tab(tab_name.capitalize())
+                for row in rows:
+                    record = {}
+                    for i, h in enumerate(headers):
+                        record[h] = row[i] if i < len(row) else ""
+                    existing[tab_name].append(record)
+            except Exception:
+                pass
 
-        try:
-            self.normalize()
-        except Exception as e:
-            results["errors"].append(f"Normalization failed: {e}")
-
-        results["timestamp"] = datetime.now(timezone.utc).isoformat()
-        return results
-
-    def _normalize_sheets(self, raw):
-        if raw is None:
-            return []
-
-        headers = [h.lower().strip() for h in raw.get("headers", [])]
-        rows = raw.get("rows", [])
-        normalized = []
-
-        for row in rows:
-            record = {}
-            for i, header in enumerate(headers):
-                value = row[i] if i < len(row) else ""
-                record[header] = value
-            # Cast numeric fields
-            if "revenue" in record:
+        # Step 3: Read and normalize each new file
+        all_new_data = {"leads": [], "invoices": [], "projects": []}
+        for object_type, files in new_files.items():
+            for file_info in files:
                 try:
-                    record["revenue"] = float(record["revenue"])
-                except (ValueError, TypeError):
-                    record["revenue"] = 0
-            normalized.append(record)
+                    headers, rows = self._drive.read_spreadsheet(file_info["id"])
+                    if not headers or not rows:
+                        continue
+                    normalized = self._openai.normalize(headers, rows, object_type)
+                    all_new_data[object_type].extend(normalized)
+                    files_processed += 1
+                except Exception as e:
+                    errors.append(
+                        f"Failed to process {file_info['name']}: {str(e)}"
+                    )
 
-        return normalized
+        # Step 4: Reconcile if we have new data
+        total_new = sum(len(v) for v in all_new_data.values())
+        if total_new > 0:
+            try:
+                reconciled = self._openai.reconcile(
+                    all_new_data,
+                    existing["leads"],
+                    existing["invoices"],
+                    existing["projects"],
+                )
+            except Exception as e:
+                errors.append(f"Reconciliation failed: {str(e)}")
+                reconciled = {
+                    "leads": existing["leads"] + all_new_data["leads"],
+                    "invoices": existing["invoices"] + all_new_data["invoices"],
+                    "projects": existing["projects"] + all_new_data["projects"],
+                }
 
-    def _normalize_reddit(self, raw):
-        if raw is None:
-            return []
+            # Step 5: Write reconciled data back to Sheets
+            for tab_name, records in reconciled.items():
+                if not records:
+                    continue
+                try:
+                    headers = list(records[0].keys())
+                    rows = [headers]
+                    for record in records:
+                        rows.append([str(record.get(h, "")) for h in headers])
+                    self._sheets.write_tab(tab_name.capitalize(), rows)
+                    records_added += len(records)
+                except Exception as e:
+                    errors.append(f"Failed to write {tab_name}: {str(e)}")
 
-        # Field mapping: Apify field name -> our schema name
-        field_map = {
-            "title": "title",
-            "score": "score",
-            "numberOfComments": "comments",
-            "upvoteRatio": "upvote_pct",
-            "author": "author",
-            "subreddit": "subreddit",
-            "createdAt": "posted_at",
-            "url": "url",
+        # Step 6: Update sync state
+        now = datetime.now(timezone.utc).isoformat()
+        for object_type, files in new_files.items():
+            if files:
+                last_sync[object_type] = max(f["modifiedTime"] for f in files)
+
+        state["last_sync_times"] = last_sync
+        state["last_run"] = now
+        state["last_result"] = {
+            "files_processed": files_processed,
+            "records_added": records_added,
+            "errors": errors,
+        }
+        self._save_state(state)
+
+        return {
+            "status": "error" if errors else "success",
+            "errors": errors,
+            "files_processed": files_processed,
+            "records_added": records_added,
+            "timestamp": now,
         }
 
-        normalized = []
-        for post in raw:
-            record = {}
-            for apify_key, our_key in field_map.items():
-                record[our_key] = post.get(apify_key, "" if our_key in ("title", "author", "subreddit", "url", "posted_at") else 0)
-            normalized.append(record)
-
-        return sorted(normalized, key=lambda p: p.get("score", 0), reverse=True)
+    def get_last_sync_info(self):
+        """Return info about the last pipeline run."""
+        state = self._load_state()
+        return {
+            "last_run": state.get("last_run"),
+            "last_result": state.get("last_result"),
+        }

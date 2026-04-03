@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block title %}Projects — Business Command Center{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Projects</h1>
+    <button class="btn btn--outline btn--sm" onclick="openSchemaModal('project')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        View Schema
+    </button>
+</div>
+
+<!-- Metric Cards -->
+<div class="metrics-grid">
+    <div class="metric-card metric-card--highlight">
+        <span class="metric-card__label">Active Projects</span>
+        <span class="metric-card__value">{{ metrics.active_count }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Total Budget</span>
+        <span class="metric-card__value">${{ "{:,.0f}".format(metrics.total_budget) }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Total Billed</span>
+        <span class="metric-card__value">${{ "{:,.0f}".format(metrics.total_billed) }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Budget Utilization</span>
+        <span class="metric-card__value {% if metrics.utilization > 90 %}metric-card__value--danger{% elif metrics.utilization > 75 %}metric-card__value--warning{% else %}metric-card__value--success{% endif %}">
+            {{ metrics.utilization }}%
+        </span>
+    </div>
+</div>
+
+<!-- Project Cards -->
+{% if projects %}
+<div class="project-grid">
+    {% for proj in projects %}
+    {% set budget = proj.budget|float if proj.budget else 0 %}
+    {% set billed = proj.total_billed|float if proj.total_billed else 0 %}
+    {% set pct = ((billed / budget * 100)|round(1)) if budget > 0 else 0 %}
+    <div class="project-card">
+        <div class="project-card__header">
+            <div onclick="toggleExpand(this.closest('.project-card'))" style="cursor:pointer; flex:1;">
+                <h3 class="project-card__name">{{ proj.name }}</h3>
+                <p class="project-card__client">{{ proj.client }}</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge badge--{{ 'green' if proj.status == 'active' else 'blue' if proj.status == 'completed' else 'amber' }}">
+                    {{ proj.status }}
+                </span>
+                {% if proj.sheet_id %}
+                <a href="https://docs.google.com/spreadsheets/d/{{ proj.sheet_id }}/edit" target="_blank" class="btn btn--outline btn--sm" onclick="event.stopPropagation()" title="Open Google Sheet">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px;"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Sheet
+                </a>
+                {% endif %}
+                <button class="btn btn--outline btn--sm"
+                    onclick='event.stopPropagation(); openEditProject({{ loop.index0 }}, {{ proj.to_dict()|tojson }})'>
+                    Edit
+                </button>
+            </div>
+        </div>
+
+        <div class="project-card__budget">
+            <div class="progress-bar">
+                <div class="progress-bar__fill {% if pct > 90 %}progress-bar__fill--danger{% elif pct > 75 %}progress-bar__fill--warning{% else %}progress-bar__fill--success{% endif %}"
+                     style="width: {{ pct if pct <= 100 else 100 }}%"></div>
+            </div>
+            <span class="project-card__budget-text">
+                ${{ "{:,.0f}".format(billed) }} / ${{ "{:,.0f}".format(budget) }} ({{ pct }}%)
+            </span>
+        </div>
+
+        <div class="project-card__meta">
+            {% set linked_leads = [] %}
+            {% set linked_invoices = [] %}
+            {% for lead in leads if lead.company and lead.company.lower() == proj.client|lower %}
+                {% if linked_leads.append(lead) %}{% endif %}
+            {% endfor %}
+            {% for inv in invoices if inv.client and inv.client.lower() == proj.client|lower %}
+                {% if linked_invoices.append(inv) %}{% endif %}
+            {% endfor %}
+            <span>{{ linked_leads|length }} lead(s)</span>
+            <span>{{ linked_invoices|length }} invoice(s)</span>
+            {% if proj.deadline %}
+            <span>Deadline: {{ proj.deadline }}</span>
+            {% endif %}
+        </div>
+
+        <!-- Expandable Details -->
+        <div class="project-card__details" style="display:none;">
+            {% if linked_leads %}
+            <h4>Linked Leads</h4>
+            <ul class="linked-list">
+                {% for lead in linked_leads %}
+                <li>{{ lead.name }} ({{ lead.email or 'no email' }}) —
+                    <span class="badge badge--{{ 'blue' if lead.stage == 'new' else 'amber' if lead.stage == 'contacted' else 'green' }}">{{ lead.stage }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if linked_invoices %}
+            <h4>Linked Invoices</h4>
+            <ul class="linked-list">
+                {% for inv in linked_invoices %}
+                <li>{{ inv.invoice_number }}: ${{ "{:,.2f}".format(inv.amount|float) }} —
+                    <span class="badge badge--{{ 'green' if inv.status == 'paid' else 'red' if inv.status == 'overdue' else 'blue' if inv.status == 'sent' else 'gray' }}">{{ inv.status }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+            {% if not linked_leads and not linked_invoices %}
+            <p style="color: #6b7280; font-size: 14px;">No linked leads or invoices yet.</p>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">No projects yet. Sync your Drive folders to import project data.</div>
+{% endif %}
+
+<!-- Edit Project Modal -->
+<div id="edit-project-overlay" class="modal-overlay" onclick="if(event.target===this)closeEditProject()">
+    <div class="edit-modal">
+        <div class="edit-modal__header">
+            <h3>Edit Project</h3>
+            <button class="edit-modal__close" onclick="closeEditProject()">&times;</button>
+        </div>
+        <div class="edit-modal__body">
+            <input type="hidden" id="edit-proj-index">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-proj-name">Project Name</label>
+                    <input class="form-input" id="edit-proj-name" type="text">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-proj-client">Client</label>
+                    <input class="form-input" id="edit-proj-client" type="text">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-proj-budget">Budget ($)</label>
+                    <input class="form-input" id="edit-proj-budget" type="number" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-proj-billed">Total Billed ($)</label>
+                    <input class="form-input" id="edit-proj-billed" type="number" step="0.01">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-proj-deadline">Deadline</label>
+                    <input class="form-input" id="edit-proj-deadline" type="date">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-proj-status">Status</label>
+                    <select class="form-input form-select" id="edit-proj-status">
+                        <option value="active">Active</option>
+                        <option value="completed">Completed</option>
+                        <option value="on_hold">On Hold</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="edit-proj-sheet">Google Sheet ID</label>
+                <input class="form-input" id="edit-proj-sheet" type="text" placeholder="The long string from the Sheet URL between /d/ and /edit">
+            </div>
+        </div>
+        <div class="edit-modal__footer">
+            <button class="btn btn--outline" onclick="closeEditProject()">Cancel</button>
+            <button class="btn btn--primary" onclick="saveEditProject()">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openEditProject(index, proj) {
+    document.getElementById('edit-proj-index').value = index;
+    document.getElementById('edit-proj-name').value = proj.name || '';
+    document.getElementById('edit-proj-client').value = proj.client || '';
+    document.getElementById('edit-proj-budget').value = proj.budget || 0;
+    document.getElementById('edit-proj-billed').value = proj.total_billed || 0;
+    document.getElementById('edit-proj-deadline').value = proj.deadline || '';
+    document.getElementById('edit-proj-status').value = proj.status || 'active';
+    document.getElementById('edit-proj-sheet').value = proj.sheet_id || '';
+    document.getElementById('edit-project-overlay').classList.add('open');
+}
+
+function closeEditProject() {
+    document.getElementById('edit-project-overlay').classList.remove('open');
+}
+
+function saveEditProject() {
+    var index = document.getElementById('edit-proj-index').value;
+    var data = {
+        name: document.getElementById('edit-proj-name').value,
+        client: document.getElementById('edit-proj-client').value,
+        budget: parseFloat(document.getElementById('edit-proj-budget').value) || 0,
+        total_billed: parseFloat(document.getElementById('edit-proj-billed').value) || 0,
+        deadline: document.getElementById('edit-proj-deadline').value,
+        status: document.getElementById('edit-proj-status').value,
+        sheet_id: document.getElementById('edit-proj-sheet').value,
+    };
+
+    fetch('/api/projects/' + index, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.status === 'success') {
+            closeEditProject();
+            window.location.reload();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(function(err) { alert('Save failed: ' + err.message); });
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeEditProject();
+});
+</script>
+{% endblock %}

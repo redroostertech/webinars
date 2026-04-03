@@ -1,102 +1,76 @@
 {% extends "base.html" %}
-{% block title %}Dashboard — Live Dashboard{% endblock %}
+{% block title %}Dashboard — Business Command Center{% endblock %}
 
 {% block content %}
 <div class="page-header">
     <h1 class="page-header__title">Dashboard</h1>
     <div class="page-header__actions">
-        <button id="refresh-btn" class="btn btn--primary btn--sm" onclick="refreshData()">Refresh Data</button>
-        {% if metadata %}
-        <span class="page-header__meta">Last updated: {{ metadata.normalized_at[:19] }}</span>
-        {% endif %}
+        <button id="sync-btn" class="btn btn--primary btn--sm" onclick="syncDrive()">Sync Drive</button>
     </div>
 </div>
 
-<!-- Sheets Metric Cards -->
-<section class="section">
-    <h2 class="section__title">Google Sheets Overview</h2>
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <span class="metric-card__label">Total Records</span>
-            <span class="metric-card__value">{{ sheets_metrics.total_records }}</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-card__label">Total Revenue</span>
-            <span class="metric-card__value">${{ "{:,.0f}".format(sheets_metrics.total_revenue) }}</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-card__label">Avg Revenue</span>
-            <span class="metric-card__value">${{ "{:,.0f}".format(sheets_metrics.avg_revenue) }}</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-card__label">Active</span>
-            <span class="metric-card__value metric-card__value--success">{{ sheets_metrics.active_count }}</span>
-        </div>
+<!-- Summary Metric Cards -->
+<div class="metrics-grid">
+    <div class="metric-card metric-card--highlight">
+        <span class="metric-card__label">Total Leads</span>
+        <span class="metric-card__value">{{ metrics.total_leads }}</span>
+        <span class="metric-card__sub">
+            {% for stage, count in metrics.leads_by_stage.items() %}
+                {{ count }} {{ stage }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </span>
     </div>
-</section>
+    <div class="metric-card">
+        <span class="metric-card__label">Outstanding Invoices</span>
+        <span class="metric-card__value metric-card__value--warning">${{ "{:,.0f}".format(metrics.outstanding_amount) }}</span>
+        <span class="metric-card__sub">{{ metrics.outstanding_invoices }} invoices unpaid</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Active Projects</span>
+        <span class="metric-card__value metric-card__value--success">{{ metrics.active_projects }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Revenue (Paid)</span>
+        <span class="metric-card__value">${{ "{:,.0f}".format(metrics.monthly_revenue) }}</span>
+    </div>
+</div>
 
-<!-- Sheets Data Table -->
+<!-- Revenue Chart -->
 <section class="section">
-    <h2 class="section__title">Sheets Data</h2>
-    {% if sheets_data %}
-    <div class="table-wrapper">
-        <table class="data-table">
-            <thead>
-                <tr>
-                    {% for key in sheets_data[0].keys() %}
-                    <th>{{ key|title }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in sheets_data[:25] %}
-                <tr>
-                    {% for val in row.values() %}
-                    <td>{{ val }}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <h2 class="section__title">Revenue Over Time</h2>
+    {% if metrics.chart_labels %}
+    <div class="chart-container">
+        <canvas id="revenueChart"></canvas>
     </div>
     {% else %}
-    <div class="empty-state">No Sheets data available. Run the ETL pipeline first.</div>
+    <div class="empty-state">No paid invoice data available for charting.</div>
     {% endif %}
 </section>
 
-<!-- Reddit Highlights -->
+<!-- Recent Activity Feed -->
 <section class="section">
-    <h2 class="section__title">Reddit Highlights</h2>
-    <div class="metrics-grid">
-        <div class="metric-card">
-            <span class="metric-card__label">Posts Tracked</span>
-            <span class="metric-card__value">{{ reddit_metrics.total_posts }}</span>
+    <h2 class="section__title">Recent Activity</h2>
+    {% if metrics.recent_activity %}
+    <div class="activity-feed">
+        {% for item in metrics.recent_activity %}
+        <div class="activity-item">
+            <span class="activity-item__icon activity-item__icon--{{ item.type }}">
+                {% if item.type == 'lead' %}&#9679;{% elif item.type == 'invoice' %}&#9679;{% else %}&#9679;{% endif %}
+            </span>
+            <span class="activity-item__text">{{ item.description }}</span>
+            <span class="activity-item__date">{{ item.date }}</span>
         </div>
-        <div class="metric-card">
-            <span class="metric-card__label">Avg Score</span>
-            <span class="metric-card__value">{{ reddit_metrics.avg_score }}</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-card__label">Total Comments</span>
-            <span class="metric-card__value">{{ reddit_metrics.total_comments }}</span>
-        </div>
-        <div class="metric-card">
-            <span class="metric-card__label">Avg Upvote %</span>
-            <span class="metric-card__value">{{ reddit_metrics.avg_upvote_pct }}%</span>
-        </div>
+        {% endfor %}
     </div>
-
-    {% if reddit_data %}
-    <div class="chart-container">
-        <canvas id="redditScoreChart"></canvas>
-    </div>
+    {% else %}
+    <div class="empty-state">No activity yet. Sync your Drive folders to get started.</div>
     {% endif %}
 </section>
 {% endblock %}
 
 {% block scripts %}
 <script>
-    const redditData = {{ reddit_data|tojson }};
+    var chartLabels = {{ metrics.chart_labels|tojson }};
+    var chartValues = {{ metrics.chart_values|tojson }};
 </script>
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 {% endblock %}

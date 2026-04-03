@@ -1,0 +1,357 @@
+{% extends "base.html" %}
+{% block title %}Invoices — Business Command Center{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Invoices</h1>
+    <div style="display: flex; gap: 8px;">
+        <button class="btn btn--primary btn--sm" onclick="document.getElementById('invoice-file-input').click()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload Invoice
+        </button>
+        <input type="file" id="invoice-file-input" accept=".pdf,.docx,.doc,.txt" style="display:none" onchange="handleInvoiceUpload(this)">
+        <button class="btn btn--outline btn--sm" onclick="openSchemaModal('invoice')">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            View Schema
+        </button>
+    </div>
+</div>
+
+<!-- Drop Zone -->
+<div id="invoice-dropzone" class="dropzone" ondrop="handleDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    <p style="margin: 8px 0 4px; color: #9ca3af; font-size: 15px;">Drag & drop a PDF, DOCX, or TXT invoice here</p>
+    <p style="color: #6b7280; font-size: 13px;">OpenAI will extract the data and match it to your projects & leads</p>
+</div>
+
+<!-- Extraction Result Preview (hidden until upload) -->
+<div id="extraction-result" style="display: none;" class="section">
+    <h2 class="section__title">Extracted Invoice</h2>
+    <div id="extraction-content"></div>
+</div>
+
+<!-- Metric Cards -->
+<div class="metrics-grid">
+    <div class="metric-card metric-card--highlight">
+        <span class="metric-card__label">Total Invoiced</span>
+        <span class="metric-card__value">${{ "{:,.0f}".format(metrics.total_invoiced) }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Total Paid</span>
+        <span class="metric-card__value metric-card__value--success">${{ "{:,.0f}".format(metrics.total_paid) }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Outstanding</span>
+        <span class="metric-card__value metric-card__value--warning">${{ "{:,.0f}".format(metrics.total_outstanding) }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Overdue</span>
+        <span class="metric-card__value metric-card__value--danger">{{ metrics.overdue_count }}</span>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filters">
+    <label class="form-label" for="status-filter">Filter by status:</label>
+    <select id="status-filter" class="form-input form-select" onchange="filterTable('invoices-table', 'status', this.value)">
+        <option value="">All</option>
+        <option value="draft">Draft</option>
+        <option value="sent">Sent</option>
+        <option value="paid">Paid</option>
+        <option value="overdue">Overdue</option>
+    </select>
+</div>
+
+<!-- Invoice Table -->
+{% if invoices %}
+<div class="table-wrapper">
+    <table class="data-table" id="invoices-table">
+        <thead>
+            <tr>
+                <th>Invoice #</th>
+                <th>Client</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for inv in invoices %}
+            <tr data-status="{{ inv.status }}">
+                <td>{{ inv.invoice_number }}</td>
+                <td>{{ inv.client }}</td>
+                <td>${{ "{:,.2f}".format(inv.amount|float) if inv.amount else "0.00" }}</td>
+                <td>{{ inv.due_date }}</td>
+                <td>
+                    <span class="badge badge--{{ 'gray' if inv.status == 'draft' else 'blue' if inv.status == 'sent' else 'green' if inv.status == 'paid' else 'red' if inv.status == 'overdue' else 'gray' }}">
+                        {{ inv.status }}
+                    </span>
+                </td>
+                <td style="white-space: nowrap;">
+                    <button class="btn btn--outline btn--sm"
+                        onclick='openEditInvoice({{ loop.index0 }}, {{ inv.to_dict()|tojson }})'>
+                        Edit
+                    </button>
+                    {% if inv.email %}
+                    <button class="btn btn--primary btn--sm" onclick="openEmailModal('{{ inv.email }}', 'Invoice {{ inv.invoice_number }}')">
+                        Send
+                    </button>
+                    {% endif %}
+                    <button class="btn btn--outline btn--sm" onclick="createReminder('Invoice {{ inv.invoice_number }} due', '{{ inv.due_date }}', 'Invoice for {{ inv.client }} — ${{ inv.amount }}')">
+                        Remind
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">No invoices yet. Sync your Drive folders to import invoice data.</div>
+{% endif %}
+
+<!-- Edit Invoice Modal -->
+<div id="edit-invoice-overlay" class="modal-overlay" onclick="if(event.target===this)closeEditInvoice()">
+    <div class="edit-modal">
+        <div class="edit-modal__header">
+            <h3>Edit Invoice</h3>
+            <button class="edit-modal__close" onclick="closeEditInvoice()">&times;</button>
+        </div>
+        <div class="edit-modal__body">
+            <input type="hidden" id="edit-inv-index">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-inv-number">Invoice #</label>
+                    <input class="form-input" id="edit-inv-number" type="text">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-inv-client">Client</label>
+                    <input class="form-input" id="edit-inv-client" type="text">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-inv-amount">Amount ($)</label>
+                    <input class="form-input" id="edit-inv-amount" type="number" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-inv-due">Due Date</label>
+                    <input class="form-input" id="edit-inv-due" type="date">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-inv-status">Status</label>
+                    <select class="form-input form-select" id="edit-inv-status">
+                        <option value="draft">Draft</option>
+                        <option value="sent">Sent</option>
+                        <option value="paid">Paid</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-inv-email">Contact Email</label>
+                    <input class="form-input" id="edit-inv-email" type="email">
+                </div>
+            </div>
+        </div>
+        <div class="edit-modal__footer">
+            <button class="btn btn--outline" onclick="closeEditInvoice()">Cancel</button>
+            <button class="btn btn--primary" onclick="saveEditInvoice()">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openEditInvoice(index, inv) {
+    document.getElementById('edit-inv-index').value = index;
+    document.getElementById('edit-inv-number').value = inv.invoice_number || '';
+    document.getElementById('edit-inv-client').value = inv.client || '';
+    document.getElementById('edit-inv-amount').value = inv.amount || 0;
+    document.getElementById('edit-inv-due').value = inv.due_date || '';
+    document.getElementById('edit-inv-status').value = inv.status || 'draft';
+    document.getElementById('edit-inv-email').value = inv.email || '';
+    document.getElementById('edit-invoice-overlay').classList.add('open');
+}
+
+function closeEditInvoice() {
+    document.getElementById('edit-invoice-overlay').classList.remove('open');
+}
+
+function saveEditInvoice() {
+    var index = document.getElementById('edit-inv-index').value;
+    var data = {
+        invoice_number: document.getElementById('edit-inv-number').value,
+        client: document.getElementById('edit-inv-client').value,
+        amount: parseFloat(document.getElementById('edit-inv-amount').value) || 0,
+        due_date: document.getElementById('edit-inv-due').value,
+        status: document.getElementById('edit-inv-status').value,
+        email: document.getElementById('edit-inv-email').value,
+    };
+
+    fetch('/api/invoices/' + index, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.status === 'success') {
+            closeEditInvoice();
+            window.location.reload();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(function(err) { alert('Save failed: ' + err.message); });
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeEditInvoice();
+});
+
+// ===== Invoice Upload & Drag-Drop =====
+var lastExtraction = null;
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.currentTarget.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+    e.currentTarget.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    e.currentTarget.classList.remove('drag-over');
+    var files = e.dataTransfer.files;
+    if (files.length > 0) uploadFile(files[0]);
+}
+
+function handleInvoiceUpload(input) {
+    if (input.files.length > 0) uploadFile(input.files[0]);
+    input.value = '';
+}
+
+function uploadFile(file) {
+    var dropzone = document.getElementById('invoice-dropzone');
+    dropzone.classList.add('processing');
+    dropzone.innerHTML = '<p style="color: #d97706; font-size: 16px; font-weight: 600;">Processing ' + file.name + '...</p><p style="color: #9ca3af; font-size: 13px;">OpenAI is extracting invoice data. This may take a few seconds.</p>';
+
+    var formData = new FormData();
+    formData.append('file', file);
+
+    fetch('/api/invoices/upload', { method: 'POST', body: formData })
+        .then(function(r) { return r.json(); })
+        .then(function(result) {
+            dropzone.classList.remove('processing');
+            dropzone.innerHTML = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg><p style="margin: 8px 0 4px; color: #9ca3af; font-size: 15px;">Drag & drop another invoice</p>';
+
+            if (result.status === 'error') {
+                showToast('Error: ' + result.message, 'error');
+                return;
+            }
+
+            lastExtraction = result;
+            showExtractionResult(result);
+        })
+        .catch(function(err) {
+            dropzone.classList.remove('processing');
+            showToast('Upload failed: ' + err.message, 'error');
+        });
+}
+
+function showExtractionResult(result) {
+    var container = document.getElementById('extraction-result');
+    var content = document.getElementById('extraction-content');
+    container.style.display = 'block';
+
+    var inv = result.invoice || {};
+    var html = '<div class="extraction-card">';
+
+    // Confidence badge
+    var confColor = result.confidence === 'high' ? 'green' : result.confidence === 'medium' ? 'amber' : 'red';
+    html += '<div style="margin-bottom: 12px;"><span class="badge badge--' + confColor + '">Confidence: ' + (result.confidence || 'unknown') + '</span></div>';
+
+    // Invoice fields
+    var fields = [
+        ['Invoice #', inv.invoice_number],
+        ['Client', inv.client],
+        ['Amount', inv.amount ? '$' + parseFloat(inv.amount).toLocaleString(undefined, {minimumFractionDigits: 2}) : ''],
+        ['Due Date', inv.due_date],
+        ['Status', inv.status],
+        ['Email', inv.email]
+    ];
+    fields.forEach(function(f) {
+        html += '<div class="extraction-card__row"><span class="extraction-card__label">' + f[0] + '</span><span class="extraction-card__value">' + (f[1] || '<em style="color:#9ca3af">not found</em>') + '</span></div>';
+    });
+
+    // Matched project
+    if (result.matched_project) {
+        html += '<div class="extraction-card__match extraction-card__match--project"><span class="badge badge--purple">' + result.matched_project + '</span> <span style="font-size:13px;color:#6b7280;">matched project</span></div>';
+    }
+
+    // Matched leads
+    if (result.matched_leads && result.matched_leads.length > 0) {
+        html += '<div class="extraction-card__match extraction-card__match--leads">';
+        result.matched_leads.forEach(function(name) {
+            html += '<span class="badge badge--blue">' + name + '</span> ';
+        });
+        html += '<span style="font-size:13px;color:#6b7280;">matched lead(s)</span></div>';
+    }
+
+    // Metadata
+    if (result.metadata && Object.keys(result.metadata).length > 0) {
+        html += '<div class="extraction-card__metadata"><strong>Additional data extracted:</strong><br>';
+        Object.keys(result.metadata).forEach(function(key) {
+            html += '<span style="color:#374151;">' + key + ':</span> ' + result.metadata[key] + '<br>';
+        });
+        html += '</div>';
+    }
+
+    // Actions
+    html += '<div class="extraction-card__actions">';
+    html += '<button class="btn btn--outline" onclick="dismissExtraction()">Dismiss</button>';
+    html += '<button class="btn btn--primary" onclick="confirmExtraction()">Save Invoice</button>';
+    html += '</div>';
+
+    html += '</div>';
+    content.innerHTML = html;
+
+    // Scroll to it
+    container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function confirmExtraction() {
+    if (!lastExtraction || !lastExtraction.invoice) return;
+
+    fetch('/api/invoices/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            invoice: lastExtraction.invoice,
+            metadata: lastExtraction.metadata || {}
+        }),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.status === 'success') {
+            showToast('Invoice saved!', 'success');
+            setTimeout(function() { window.location.reload(); }, 1000);
+        } else {
+            showToast('Save failed: ' + result.message, 'error');
+        }
+    })
+    .catch(function(err) { showToast('Error: ' + err.message, 'error'); });
+}
+
+function dismissExtraction() {
+    lastExtraction = null;
+    document.getElementById('extraction-result').style.display = 'none';
+}
+</script>
+{% endblock %}

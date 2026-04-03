@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% block title %}Leads — Business Command Center{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Leads</h1>
+    <button class="btn btn--outline btn--sm" onclick="openSchemaModal('lead')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: -2px; margin-right: 4px;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        View Schema
+    </button>
+</div>
+
+<!-- Metric Cards -->
+<div class="metrics-grid">
+    <div class="metric-card metric-card--highlight">
+        <span class="metric-card__label">Total Leads</span>
+        <span class="metric-card__value">{{ metrics.total }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">New This Week</span>
+        <span class="metric-card__value">{{ metrics.new_this_week }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">New</span>
+        <span class="metric-card__value metric-card__value--primary">{{ metrics.new }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Contacted</span>
+        <span class="metric-card__value metric-card__value--warning">{{ metrics.contacted }}</span>
+    </div>
+    <div class="metric-card">
+        <span class="metric-card__label">Converted</span>
+        <span class="metric-card__value metric-card__value--success">{{ metrics.converted }}</span>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="filters">
+    <label class="form-label" for="stage-filter">Filter by stage:</label>
+    <select id="stage-filter" class="form-input form-select" onchange="filterTable('leads-table', 'stage', this.value)">
+        <option value="">All</option>
+        <option value="new">New</option>
+        <option value="contacted">Contacted</option>
+        <option value="converted">Converted</option>
+    </select>
+</div>
+
+<!-- Leads Table -->
+{% if leads %}
+<div class="table-wrapper">
+    <table class="data-table" id="leads-table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Project</th>
+                <th>Source</th>
+                <th>Stage</th>
+                <th>Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lead in leads %}
+            <tr data-stage="{{ lead.stage }}">
+                <td>{{ lead.name }}</td>
+                <td>{{ lead.email }}</td>
+                <td>{{ lead.company }}</td>
+                <td>
+                    {% if lead.project %}
+                    <span class="badge badge--purple">{{ lead.project }}</span>
+                    {% else %}
+                    <span class="badge badge--gray">No project</span>
+                    {% endif %}
+                </td>
+                <td>{{ lead.source }}</td>
+                <td>
+                    <span class="badge badge--{{ 'blue' if lead.stage == 'new' else 'amber' if lead.stage == 'contacted' else 'green' if lead.stage == 'converted' else 'gray' }}">
+                        {{ lead.stage }}
+                    </span>
+                </td>
+                <td>{{ lead.created_at }}</td>
+                <td style="white-space: nowrap;">
+                    <button class="btn btn--outline btn--sm"
+                        onclick='openEditLead({{ loop.index0 }}, {{ lead.to_dict()|tojson }})'>
+                        Edit
+                    </button>
+                    {% if lead.email %}
+                    <button class="btn btn--primary btn--sm"
+                        onclick="handleLeadEmail('{{ lead.email }}', '{{ lead.company }}', '{{ lead.project }}')">
+                        Email
+                    </button>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="empty-state">No leads yet. Sync your Drive folders to import lead data.</div>
+{% endif %}
+
+<!-- Confirm Modal: No Project Linked -->
+<div id="confirm-no-project-overlay" class="modal-overlay" onclick="if(event.target===this)closeConfirmModal()">
+    <div class="confirm-modal">
+        <div class="confirm-modal__icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2">
+                <path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+        </div>
+        <h3 class="confirm-modal__title">No Project Linked</h3>
+        <p class="confirm-modal__text">
+            This lead at <strong id="confirm-company"></strong> doesn't have a project associated with them yet.
+            Emailing without a project context may lack important details.
+        </p>
+        <p class="confirm-modal__subtext">Are you sure you want to proceed?</p>
+        <div class="confirm-modal__actions">
+            <button class="btn btn--outline" onclick="closeConfirmModal()">Cancel</button>
+            <button class="btn btn--primary" id="confirm-proceed-btn">Send Anyway</button>
+        </div>
+    </div>
+</div>
+<!-- Edit Lead Modal -->
+<div id="edit-lead-overlay" class="modal-overlay" onclick="if(event.target===this)closeEditLead()">
+    <div class="edit-modal">
+        <div class="edit-modal__header">
+            <h3>Edit Lead</h3>
+            <button class="edit-modal__close" onclick="closeEditLead()">&times;</button>
+        </div>
+        <div class="edit-modal__body">
+            <input type="hidden" id="edit-lead-index">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-lead-name">Name</label>
+                    <input class="form-input" id="edit-lead-name" type="text">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-lead-email">Email</label>
+                    <input class="form-input" id="edit-lead-email" type="email">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-lead-company">Company</label>
+                    <input class="form-input" id="edit-lead-company" type="text">
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-lead-source">Source</label>
+                    <input class="form-input" id="edit-lead-source" type="text">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label" for="edit-lead-stage">Stage</label>
+                    <select class="form-input form-select" id="edit-lead-stage">
+                        <option value="new">New</option>
+                        <option value="contacted">Contacted</option>
+                        <option value="converted">Converted</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="edit-lead-project">Project</label>
+                    <input class="form-input" id="edit-lead-project" type="text" placeholder="e.g. Website Redesign">
+                </div>
+            </div>
+        </div>
+        <div class="edit-modal__footer">
+            <button class="btn btn--outline" onclick="closeEditLead()">Cancel</button>
+            <button class="btn btn--primary" onclick="saveEditLead()">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function handleLeadEmail(email, company, project) {
+    if (!project) {
+        // Show confirmation modal
+        document.getElementById('confirm-company').textContent = company;
+        document.getElementById('confirm-no-project-overlay').classList.add('open');
+        document.getElementById('confirm-proceed-btn').onclick = function() {
+            closeConfirmModal();
+            openEmailModal(email, 'Following up — ' + company);
+        };
+    } else {
+        openEmailModal(email, 'Re: ' + project + ' — ' + company);
+    }
+}
+
+function closeConfirmModal() {
+    document.getElementById('confirm-no-project-overlay').classList.remove('open');
+}
+
+function openEditLead(index, lead) {
+    document.getElementById('edit-lead-index').value = index;
+    document.getElementById('edit-lead-name').value = lead.name || '';
+    document.getElementById('edit-lead-email').value = lead.email || '';
+    document.getElementById('edit-lead-company').value = lead.company || '';
+    document.getElementById('edit-lead-source').value = lead.source || '';
+    document.getElementById('edit-lead-stage').value = lead.stage || 'new';
+    document.getElementById('edit-lead-project').value = lead.project || '';
+    document.getElementById('edit-lead-overlay').classList.add('open');
+}
+
+function closeEditLead() {
+    document.getElementById('edit-lead-overlay').classList.remove('open');
+}
+
+function saveEditLead() {
+    var index = document.getElementById('edit-lead-index').value;
+    var data = {
+        name: document.getElementById('edit-lead-name').value,
+        email: document.getElementById('edit-lead-email').value,
+        company: document.getElementById('edit-lead-company').value,
+        source: document.getElementById('edit-lead-source').value,
+        stage: document.getElementById('edit-lead-stage').value,
+        project: document.getElementById('edit-lead-project').value,
+    };
+
+    fetch('/api/leads/' + index, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.status === 'success') {
+            closeEditLead();
+            window.location.reload();
+        } else {
+            alert('Error: ' + result.message);
+        }
+    })
+    .catch(function(err) { alert('Save failed: ' + err.message); });
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeConfirmModal();
+        closeEditLead();
+    }
+});
+</script>
+{% endblock %}

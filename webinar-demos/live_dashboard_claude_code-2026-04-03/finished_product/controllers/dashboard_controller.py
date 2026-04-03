@@ -8,40 +8,28 @@ class DashboardController:
         self._data = data_service
 
     def dashboard_page(self):
-        all_data = self._data.get_dashboard_data()
-        sheets = all_data.get("sheets_data", [])
-        reddit = all_data.get("reddit_data", [])
-        metadata = all_data.get("metadata")
+        metrics = self._data.compute_dashboard_metrics()
+        return render_template("dashboard.html", metrics=metrics)
 
-        sheets_metrics = self._data.compute_sheets_metrics(sheets)
-        reddit_metrics = self._data.compute_reddit_metrics(reddit)
+    def leads_page(self):
+        leads = self._data.get_leads()
+        metrics = self._data.compute_leads_metrics()
+        return render_template("leads.html", leads=leads, metrics=metrics)
 
+    def invoices_page(self):
+        invoices = self._data.get_invoices()
+        metrics = self._data.compute_invoices_metrics()
+        return render_template("invoices.html", invoices=invoices, metrics=metrics)
+
+    def projects_page(self):
+        projects = self._data.get_projects()
+        leads = self._data.get_leads()
+        invoices = self._data.get_invoices()
+        metrics = self._data.compute_projects_metrics()
         return render_template(
-            "dashboard.html",
-            sheets_data=sheets,
-            reddit_data=reddit[:10],
-            sheets_metrics=sheets_metrics,
-            reddit_metrics=reddit_metrics,
-            metadata=metadata,
-        )
-
-    def reddit_page(self):
-        reddit = self._data.get_reddit_data()
-        metrics = self._data.compute_reddit_metrics(reddit)
-
-        return render_template(
-            "reddit.html",
-            reddit_data=reddit,
+            "projects.html",
+            projects=projects,
+            leads=leads,
+            invoices=invoices,
             metrics=metrics,
-            metadata=self._data.get_metadata(),
-        )
-
-    def summary_page(self):
-        summary = self._data.get_combined_summary()
-
-        return render_template(
-            "combined.html",
-            sheets_metrics=summary["sheets_metrics"],
-            reddit_metrics=summary["reddit_metrics"],
-            metadata=summary["metadata"],
         )

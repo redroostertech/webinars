@@ -10,14 +10,19 @@ def create_dashboard_blueprint(dashboard_controller):
     def dashboard_page():
         return dashboard_controller.dashboard_page()
 
-    @bp.route("/reddit")
+    @bp.route("/leads")
     @login_required
-    def reddit_page():
-        return dashboard_controller.reddit_page()
+    def leads_page():
+        return dashboard_controller.leads_page()
 
-    @bp.route("/summary")
+    @bp.route("/invoices")
     @login_required
-    def summary_page():
-        return dashboard_controller.summary_page()
+    def invoices_page():
+        return dashboard_controller.invoices_page()
+
+    @bp.route("/projects")
+    @login_required
+    def projects_page():
+        return dashboard_controller.projects_page()
 
     return bp

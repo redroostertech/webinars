@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Live Dashboard{% endblock %}</title>
+    <title>{% block title %}Business Command Center{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 </head>
@@ -11,11 +11,12 @@
     {% if current_user.is_authenticated %}
     <nav class="top-bar">
         <div class="top-bar__left">
-            <a href="{{ url_for('dashboard.dashboard_page') }}" class="top-bar__brand">Live Dashboard</a>
+            <a href="{{ url_for('dashboard.dashboard_page') }}" class="top-bar__brand">Business Command Center</a>
             <div class="top-bar__nav">
                 <a href="{{ url_for('dashboard.dashboard_page') }}" class="nav-link {% if request.endpoint == 'dashboard.dashboard_page' %}nav-link--active{% endif %}">Dashboard</a>
-                <a href="{{ url_for('dashboard.reddit_page') }}" class="nav-link {% if request.endpoint == 'dashboard.reddit_page' %}nav-link--active{% endif %}">Reddit</a>
-                <a href="{{ url_for('dashboard.summary_page') }}" class="nav-link {% if request.endpoint == 'dashboard.summary_page' %}nav-link--active{% endif %}">Summary</a>
+                <a href="{{ url_for('dashboard.leads_page') }}" class="nav-link {% if request.endpoint == 'dashboard.leads_page' %}nav-link--active{% endif %}">Leads</a>
+                <a href="{{ url_for('dashboard.invoices_page') }}" class="nav-link {% if request.endpoint == 'dashboard.invoices_page' %}nav-link--active{% endif %}">Invoices</a>
+                <a href="{{ url_for('dashboard.projects_page') }}" class="nav-link {% if request.endpoint == 'dashboard.projects_page' %}nav-link--active{% endif %}">Projects</a>
             </div>
         </div>
         <div class="top-bar__right">
@@ -38,6 +39,127 @@
 
         {% block content %}{% endblock %}
     </main>
+
+    <!-- Email Compose Modal -->
+    <div id="email-modal" class="modal" style="display:none;">
+        <div class="modal__backdrop" onclick="closeEmailModal()"></div>
+        <div class="modal__content">
+            <div class="modal__header">
+                <h3 class="modal__title">Compose Email</h3>
+                <button class="modal__close" onclick="closeEmailModal()">&times;</button>
+            </div>
+            <form id="email-form" onsubmit="sendEmail(event)">
+                <div class="form-group">
+                    <label for="email-to" class="form-label">To</label>
+                    <input type="email" id="email-to" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="email-subject" class="form-label">Subject</label>
+                    <input type="text" id="email-subject" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label for="email-body" class="form-label">Message</label>
+                    <textarea id="email-body" class="form-input form-textarea" rows="6"></textarea>
+                </div>
+                <div class="modal__actions">
+                    <button type="button" class="btn btn--outline" onclick="closeEmailModal()">Cancel</button>
+                    <button type="submit" class="btn btn--primary" id="email-send-btn">Send</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+
+    <!-- Schema Modal -->
+    <div id="schema-modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeSchemaModal()">
+        <div class="edit-modal" style="max-width: 620px;">
+            <div class="edit-modal__header">
+                <h3 id="schema-modal-title">Data Model</h3>
+                <button class="edit-modal__close" onclick="closeSchemaModal()">&times;</button>
+            </div>
+            <div class="edit-modal__body" id="schema-modal-body" style="padding: 0;"></div>
+        </div>
+    </div>
+
+    <script>
+    var schemas = {
+        lead: {
+            title: "Lead Schema",
+            description: "Represents a potential customer or business contact.",
+            fields: [
+                { name: "name", type: "string", required: true, example: "Jane Smith", description: "Full name of the lead" },
+                { name: "email", type: "string", required: false, example: "jane@acme.com", description: "Contact email address" },
+                { name: "company", type: "string", required: true, example: "Acme Corp", description: "Company or business name" },
+                { name: "source", type: "string", required: false, example: "LinkedIn", description: "How the lead was found" },
+                { name: "stage", type: "enum", required: true, example: "new", description: "new | contacted | converted" },
+                { name: "project", type: "string", required: false, example: "Website Redesign", description: "Linked project (auto-filled by reconciliation)" },
+                { name: "created_at", type: "date", required: true, example: "2026-04-01", description: "Date the lead was added (YYYY-MM-DD)" }
+            ]
+        },
+        invoice: {
+            title: "Invoice Schema",
+            description: "Represents a bill sent to a client for work performed.",
+            fields: [
+                { name: "invoice_number", type: "string", required: true, example: "INV-0042", description: "Unique invoice identifier" },
+                { name: "client", type: "string", required: true, example: "Acme Corp", description: "Client company name (used for cross-referencing)" },
+                { name: "amount", type: "number", required: true, example: "4500.00", description: "Invoice amount in dollars" },
+                { name: "due_date", type: "date", required: true, example: "2026-04-15", description: "Payment due date (YYYY-MM-DD)" },
+                { name: "status", type: "enum", required: true, example: "sent", description: "draft | sent | paid | overdue" },
+                { name: "email", type: "string", required: false, example: "billing@acme.com", description: "Contact email for sending the invoice" }
+            ]
+        },
+        project: {
+            title: "Project Schema",
+            description: "Represents a body of work for a client, linking leads and invoices.",
+            fields: [
+                { name: "name", type: "string", required: true, example: "Website Redesign", description: "Project name" },
+                { name: "client", type: "string", required: true, example: "Acme Corp", description: "Client company name (used for cross-referencing)" },
+                { name: "budget", type: "number", required: true, example: "15000.00", description: "Total project budget in dollars" },
+                { name: "total_billed", type: "number", required: true, example: "4500.00", description: "Sum of invoices billed (auto-updated by reconciliation)" },
+                { name: "deadline", type: "date", required: false, example: "2026-06-01", description: "Project deadline (YYYY-MM-DD)" },
+                { name: "status", type: "enum", required: true, example: "active", description: "active | completed | on_hold" },
+                { name: "sheet_id", type: "string", required: false, example: "1-zRobLafq...", description: "Google Sheet ID linked to this project" }
+            ]
+        }
+    };
+
+    function openSchemaModal(type) {
+        var schema = schemas[type];
+        if (!schema) return;
+        document.getElementById('schema-modal-title').textContent = schema.title;
+
+        var html = '<div style="padding: 16px 24px 8px; color: #6b7280; font-size: 14px;">' + schema.description + '</div>';
+        html += '<table class="data-table" style="margin: 0; font-size: 13px;">';
+        html += '<thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Example</th><th>Description</th></tr></thead><tbody>';
+
+        schema.fields.forEach(function(f) {
+            var typeBadge = f.type === 'enum' ? 'amber' : f.type === 'number' ? 'green' : f.type === 'date' ? 'purple' : 'blue';
+            html += '<tr>';
+            html += '<td><code style="font-size: 12px; background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">' + f.name + '</code></td>';
+            html += '<td><span class="badge badge--' + typeBadge + '" style="font-size: 11px;">' + f.type + '</span></td>';
+            html += '<td>' + (f.required ? '<span style="color: #16a34a; font-weight: 600;">Yes</span>' : '<span style="color: #9ca3af;">No</span>') + '</td>';
+            html += '<td style="color: #6b7280; font-size: 12px;">' + f.example + '</td>';
+            html += '<td style="color: #6b7280; font-size: 12px;">' + f.description + '</td>';
+            html += '</tr>';
+        });
+
+        html += '</tbody></table>';
+        document.getElementById('schema-modal-body').innerHTML = html;
+        document.getElementById('schema-modal-overlay').classList.add('open');
+    }
+
+    function closeSchemaModal() {
+        document.getElementById('schema-modal-overlay').classList.remove('open');
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSchemaModal();
+    });
+    </script>
 
     {% block scripts %}{% endblock %}
 </body>

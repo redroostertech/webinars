@@ -1,59 +1,76 @@
-import os
+"""Read and write the master Google Spreadsheet (single source of truth)."""
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-
-SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly"]
+import config
+from google_auth import get_credentials
 
 
 class SheetsService:
-    """Single responsibility: extract data from Google Sheets API."""
 
-    def __init__(self, credentials_path, token_path):
-        self._credentials_path = credentials_path
-        self._token_path = token_path
+    def __init__(self):
+        self._sheet_id = config.MASTER_SHEET_ID
 
-    def _get_credentials(self):
-        creds = None
+    def _service(self):
+        """Build a fresh Sheets API client each call to avoid stale tokens."""
+        creds = get_credentials()
+        return build("sheets", "v4", credentials=creds)
 
-        if os.path.exists(self._token_path):
-            creds = Credentials.from_authorized_user_file(self._token_path, SCOPES)
-
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        elif not creds or not creds.valid:
-            if not os.path.exists(self._credentials_path):
-                raise FileNotFoundError(
-                    f"credentials.json not found at {self._credentials_path}. "
-                    "Download it from Google Cloud Console."
-                )
-            flow = InstalledAppFlow.from_client_secrets_file(
-                self._credentials_path, SCOPES
-            )
-            creds = flow.run_local_server(port=0)
-
-        with open(self._token_path, "w") as token_file:
-            token_file.write(creds.to_json())
-
-        return creds
-
-    def fetch(self, spreadsheet_id, range_name="Sheet1!A1:Z1000"):
-        creds = self._get_credentials()
-        service = build("sheets", "v4", credentials=creds)
+    def read_tab(self, tab_name):
+        """Return (headers, rows) from a sheet tab. Rows are lists of strings."""
         result = (
-            service.spreadsheets()
+            self._service()
+            .spreadsheets()
             .values()
-            .get(spreadsheetId=spreadsheet_id, range=range_name)
+            .get(spreadsheetId=self._sheet_id, range=tab_name)
             .execute()
         )
-
         values = result.get("values", [])
-        if not values:
-            return {"headers": [], "rows": []}
+        if len(values) < 1:
+            return [], []
+        return values[0], values[1:]
 
-        headers = values[0]
-        rows = values[1:]
-        return {"headers": headers, "rows": rows}
+    def write_tab(self, tab_name, rows):
+        """Overwrite an entire tab with rows (first row = headers)."""
+        body = {"values": rows}
+        self._service().spreadsheets().values().update(
+            spreadsheetId=self._sheet_id,
+            range=tab_name,
+            valueInputOption="RAW",
+            body=body,
+        ).execute()
+
+    def append_rows(self, tab_name, rows):
+        """Append rows to the bottom of a tab."""
+        body = {"values": rows}
+        self._service().spreadsheets().values().append(
+            spreadsheetId=self._sheet_id,
+            range=tab_name,
+            valueInputOption="RAW",
+            insertDataOption="INSERT_ROWS",
+            body=body,
+        ).execute()
+
+    def read_tab_from_sheet(self, sheet_id, tab_name):
+        """Read from any sheet by ID (not just the master)."""
+        result = (
+            self._service()
+            .spreadsheets()
+            .values()
+            .get(spreadsheetId=sheet_id, range=tab_name)
+            .execute()
+        )
+        values = result.get("values", [])
+        if len(values) < 1:
+            return [], []
+        return values[0], values[1:]
+
+    def write_tab_to_sheet(self, sheet_id, tab_name, rows):
+        """Write to any sheet by ID (not just the master)."""
+        body = {"values": rows}
+        self._service().spreadsheets().values().update(
+            spreadsheetId=sheet_id,
+            range=tab_name,
+            valueInputOption="RAW",
+            body=body,
+        ).execute()

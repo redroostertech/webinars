@@ -1,0 +1,1742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Build Your Personal Business Dashboard</title>
+<style>
+@page {
+    size: 11in 8.5in;
+    margin: 0;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    color: #e5e7eb;
+    background: #111827;
+    overflow: hidden;
+}
+
+/* ===== Slide base ===== */
+.slide {
+    width: 100vw;
+    height: 100vh;
+    padding: 60px 80px 50px;
+    page-break-after: always;
+    position: relative;
+    overflow: hidden;
+    display: none;           /* hidden by default */
+    flex-direction: column;
+    justify-content: center;
+    background: #111827;
+    opacity: 0;
+    transition: opacity 200ms ease;
+}
+
+/* Cards and grids should expand to fill available space */
+.card-grid { flex-shrink: 0; }
+.card { flex: 1; display: flex; flex-direction: column; }
+.card p { flex: 1; }
+
+/* Callouts push to bottom */
+.callout { margin-top: auto; }
+
+/* Section label stays at top */
+.section-label { margin-top: 0; }
+
+/* Tables fill space */
+.table-fill { flex: 1; }
+
+.slide.active {
+    display: flex;
+    opacity: 1;
+}
+
+.slide:last-child { page-break-after: avoid; }
+
+/* Accent bar */
+.slide::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, #2563eb, #16a34a, #d97706);
+}
+
+/* Slide number (hidden on screen — we use the floating indicator instead) */
+.slide-num {
+    position: absolute;
+    bottom: 30px;
+    right: 50px;
+    font-size: 13px;
+    color: #6b7280;
+    display: none;
+}
+
+/* Footer */
+.slide-footer {
+    position: absolute;
+    bottom: 30px;
+    left: 80px;
+    font-size: 12px;
+    color: #4b5563;
+}
+
+/* ===== Title Slide ===== */
+.slide--title {
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+.slide--title::before {
+    height: 6px;
+}
+
+.slide--title h1 {
+    font-size: 52px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+}
+
+.slide--title .subtitle {
+    font-size: 22px;
+    color: #9ca3af;
+    margin-bottom: 40px;
+}
+
+.slide--title .meta {
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.slide--title .pill {
+    display: inline-block;
+    padding: 6px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 4px;
+}
+
+.pill--blue { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+.pill--green { background: rgba(22, 163, 74, 0.2); color: #4ade80; }
+.pill--amber { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+
+/* Section headers */
+h1.section-title {
+    font-size: 42px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+}
+
+.section-label {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: #2563eb;
+    margin-bottom: 12px;
+}
+
+h2 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 20px;
+    margin-top: 24px;
+}
+
+h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #d1d5db;
+    margin-bottom: 12px;
+    margin-top: 20px;
+}
+
+p {
+    font-size: 18px;
+    line-height: 1.7;
+    color: #d1d5db;
+    margin-bottom: 16px;
+}
+
+.lead {
+    font-size: 22px;
+    color: #9ca3af;
+    margin-bottom: 24px;
+}
+
+/* Lists */
+ul, ol {
+    margin-left: 24px;
+    margin-bottom: 16px;
+}
+
+li {
+    font-size: 18px;
+    line-height: 1.8;
+    color: #d1d5db;
+    margin-bottom: 6px;
+}
+
+li strong { color: #ffffff; }
+
+/* Code */
+code {
+    background: #1f2937;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 16px;
+    color: #60a5fa;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+pre {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+    overflow: hidden;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #e5e7eb;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 16px 0;
+}
+
+.card-grid--3 { grid-template-columns: 1fr 1fr 1fr; }
+.card-grid--1 { grid-template-columns: 1fr; }
+
+.card {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.card--highlight {
+    border-color: #2563eb;
+    border-width: 2px;
+}
+
+.card h3 {
+    margin-top: 0;
+    color: #ffffff;
+    font-size: 18px;
+    margin-bottom: 8px;
+}
+
+.card p {
+    font-size: 15px;
+    color: #9ca3af;
+    margin-bottom: 0;
+}
+
+.card .icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.card .icon svg {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 15px;
+}
+
+th {
+    background: #1f2937;
+    color: #9ca3af;
+    text-align: left;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 2px solid #374151;
+}
+
+td {
+    padding: 10px 16px;
+    border-bottom: 1px solid #1f2937;
+    color: #d1d5db;
+}
+
+tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
+
+/* Callout boxes */
+.callout {
+    border-left: 4px solid #2563eb;
+    background: rgba(37, 99, 235, 0.08);
+    padding: 20px 24px;
+    border-radius: 0 8px 8px 0;
+    margin: 20px 0;
+}
+
+.callout--green { border-color: #16a34a; background: rgba(22, 163, 74, 0.08); }
+.callout--amber { border-color: #d97706; background: rgba(217, 119, 6, 0.08); }
+.callout--red { border-color: #dc2626; background: rgba(220, 38, 38, 0.08); }
+
+.callout p {
+    font-size: 17px;
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+/* Steps */
+.step {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.step-num {
+    background: #2563eb;
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.step-content {
+    flex: 1;
+}
+
+.step-content p {
+    font-size: 17px;
+    margin-bottom: 0;
+}
+
+.step-content strong { color: #ffffff; }
+
+/* Flow diagram */
+.flow {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 16px;
+    color: #9ca3af;
+    line-height: 2.2;
+}
+
+.flow .arrow { color: #4b5563; }
+.flow .node {
+    display: inline-block;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 6px 16px;
+    color: #e5e7eb;
+    font-weight: 500;
+}
+
+.flow .node--blue { border-color: #2563eb; color: #60a5fa; }
+.flow .node--green { border-color: #16a34a; color: #4ade80; }
+.flow .node--amber { border-color: #d97706; color: #fbbf24; }
+
+/* Two column layout */
+.two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-top: 16px;
+}
+
+.two-col--60-40 { grid-template-columns: 3fr 2fr; }
+
+/* Badge */
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.badge--blue { background: rgba(37, 99, 235, 0.2); color: #60a5fa; }
+.badge--green { background: rgba(22, 163, 74, 0.2); color: #4ade80; }
+.badge--amber { background: rgba(217, 119, 6, 0.2); color: #fbbf24; }
+.badge--red { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+
+/* Spacer */
+.spacer { margin-top: 20px; }
+.spacer-sm { margin-top: 12px; }
+
+/* ===== Prompt Modal ===== */
+.prompt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(22, 163, 74, 0.15));
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    color: #60a5fa;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+    margin-top: 12px;
+}
+
+.prompt-btn:hover {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.25), rgba(22, 163, 74, 0.25));
+    border-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.prompt-btn svg {
+    flex-shrink: 0;
+}
+
+#prompt-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+#prompt-modal-overlay.open {
+    display: flex;
+}
+
+#prompt-modal {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 740px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    animation: modal-in 0.2s ease;
+}
+
+@keyframes modal-in {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+#prompt-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid #374151;
+}
+
+#prompt-modal-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+#prompt-modal-close {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+#prompt-modal-close:hover { color: #ffffff; }
+
+#prompt-modal-body {
+    padding: 24px 28px 28px;
+}
+
+.modal-prompt-block {
+    margin-bottom: 24px;
+}
+
+.modal-prompt-block:last-child { margin-bottom: 0; }
+
+.modal-prompt-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.modal-prompt-text {
+    background: #111827;
+    border: 1px solid #374151;
+    border-radius: 8px;
+    padding: 16px 20px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #e5e7eb;
+    font-family: inherit;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.modal-prompt-text:hover {
+    border-color: #2563eb;
+}
+
+.modal-prompt-text::after {
+    content: 'Click to copy';
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: #4b5563;
+    transition: color 0.15s;
+}
+
+.modal-prompt-text:hover::after { color: #60a5fa; }
+
+.modal-prompt-text.copied::after {
+    content: 'Copied!';
+    color: #4ade80;
+}
+
+.modal-caveat {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: rgba(217, 119, 6, 0.08);
+    border-radius: 6px;
+    border-left: 3px solid #d97706;
+}
+
+.modal-caveat p {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #fbbf24;
+    margin: 0;
+}
+
+.modal-caveat-icon {
+    color: #d97706;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+
+/* ===== Presentation UI overlay ===== */
+#slide-indicator {
+    position: fixed;
+    bottom: 16px;
+    right: 24px;
+    font-size: 14px;
+    color: #6b7280;
+    z-index: 1000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    pointer-events: none;
+    user-select: none;
+}
+
+#progress-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #2563eb, #16a34a, #d97706);
+    z-index: 1000;
+    transition: width 200ms ease;
+}
+
+/* ===== Print / PDF styles ===== */
+@media print {
+    body { overflow: visible; }
+    .slide {
+        display: flex !important;
+        opacity: 1 !important;
+        width: 11in;
+        height: 8.5in;
+        page-break-after: always;
+    }
+    .slide:last-child { page-break-after: avoid; }
+    .slide-num { display: block !important; }
+    #slide-indicator, #progress-bar { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== SLIDE 1: TITLE ==================== -->
+<div class="slide slide--title">
+    <h1>Build Your Personal<br>Business Dashboard</h1>
+    <p class="subtitle">With Claude Code — From Zero to a Working App</p>
+    <div style="margin: 24px 0;">
+        <span class="pill pill--blue">Google Drive</span>
+        <span class="pill pill--blue">Google Sheets</span>
+        <span class="pill pill--green">OpenAI</span>
+        <span class="pill pill--amber">Gmail</span>
+        <span class="pill pill--amber">Calendar</span>
+    </div>
+    <p class="meta">60 Minutes &bull; Hands-On &bull; No Coding Experience Required</p>
+    <span class="slide-num">1</span>
+</div>
+
+<!-- ==================== SLIDE 2: THE PROBLEM ==================== -->
+<div class="slide">
+    <div class="section-label">The Problem</div>
+    <h1 class="section-title">Your Business Data Is Everywhere</h1>
+    <p class="lead">You're running businesses. Your data lives in scattered spreadsheets, inboxes, and folders. Sound familiar?</p>
+
+    <div class="card-grid card-grid--3">
+        <div class="card">
+            <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="10" r="5"/><path d="M6 28c0-5.523 4.477-10 10-10s10 4.477 10 10"/></svg></span>
+            <h3>Leads</h3>
+            <p>In a Google Sheet somewhere. Maybe two. Different formats. Some are outdated. You know there are duplicates but who has time?</p>
+        </div>
+        <div class="card">
+            <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="16" r="12"/><text x="16" y="21" text-anchor="middle" font-size="16" font-weight="700" fill="#4ade80" stroke="none" font-family="sans-serif">$</text></svg></span>
+            <h3>Invoices</h3>
+            <p>In Drive. In email. In your Downloads folder. Who's paid? Who hasn't? Follow-ups fall through the cracks every month.</p>
+        </div>
+        <div class="card">
+            <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 28V8l4-4h16l4 4v20H4z"/><path d="M4 8h24"/></svg></span>
+            <h3>Projects</h3>
+            <p>Tracked in your head. Or a spreadsheet that's 3 weeks behind reality. No clear link between projects, leads, and invoices.</p>
+        </div>
+    </div>
+
+    <div class="callout">
+        <p>"I don't need more tools. I need the tools I already use to talk to each other."</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">2</span>
+</div>
+
+<!-- ==================== SLIDE 3: THE SOLUTION ==================== -->
+<div class="slide">
+    <div class="section-label">The Solution</div>
+    <h1 class="section-title">One Dashboard. All Your Data. Actionable.</h1>
+    <p class="lead">By the end of this session, you'll have a working dashboard that:</p>
+
+    <div class="card-grid">
+        <div class="card card--highlight">
+            <h3>Auto-Organizes</h3>
+            <p>Drop a spreadsheet into Google Drive. The pipeline normalizes it into your master database — no manual cleanup.</p>
+        </div>
+        <div class="card card--highlight">
+            <h3>Cross-References</h3>
+            <p>Upload an invoice for "Acme Corp" and the system finds the matching lead and marks them as "converted."</p>
+        </div>
+        <div class="card">
+            <h3>Emails Directly</h3>
+            <p>Click a button on a lead to send them an email — right from the dashboard. No switching apps.</p>
+        </div>
+        <div class="card">
+            <h3>Sets Reminders</h3>
+            <p>One click adds an invoice due date to your Google Calendar with a 24-hour reminder.</p>
+        </div>
+    </div>
+
+    <div class="callout callout--green">
+        <p>And you're going to build it using Claude Code — by describing what you want in plain English.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">3</span>
+</div>
+
+<!-- ==================== SLIDE 4: WHAT IS CLAUDE CODE? ==================== -->
+<div class="slide">
+    <div class="section-label">The Tool</div>
+    <h1 class="section-title">What Is Claude Code?</h1>
+    <p class="lead">A terminal tool that runs on your machine. You type plain English. It reads and writes your actual project files.</p>
+
+    <div class="two-col" style="margin-top: 8px;">
+        <div>
+            <pre style="font-size: 14px; line-height: 1.8; padding: 24px;">
+<span style="color: #6b7280;">$</span> <span style="color: #4ade80;">claude</span>
+
+<span style="color: #9ca3af;">You:</span> Build a /leads page that reads
+      from the Sheets service and shows
+      a table with name, email, company,
+      and a stage badge.
+
+<span style="color: #60a5fa;">Claude Code:</span> I'll create the template,
+  add the route, and wire it to the
+  sheets service.
+
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><polyline points="2 7 5.5 10.5 12 3.5"/></svg> Created templates/leads.html
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><polyline points="2 7 5.5 10.5 12 3.5"/></svg> Updated routes/dashboard_routes.py
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: middle;"><polyline points="2 7 5.5 10.5 12 3.5"/></svg> Updated controllers/dashboard_controller.py</pre>
+        </div>
+        <div>
+            <div class="card card--highlight" style="margin-bottom: 16px;">
+                <h3 style="color: #60a5fa;">It sees your files</h3>
+                <p>Claude Code reads your project structure, understands what exists, and edits the right files in the right places.</p>
+            </div>
+            <div class="card card--highlight" style="margin-bottom: 16px;">
+                <h3 style="color: #4ade80;">You describe, it builds</h3>
+                <p>No syntax to learn. No copy-pasting from Stack Overflow. Say what you want and watch it happen.</p>
+            </div>
+            <div class="card card--highlight">
+                <h3 style="color: #fbbf24;">It runs on your machine</h3>
+                <p>Your files stay local. Nothing is uploaded to a website. It works in your terminal, on your project.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout callout--amber" style="margin-top: 12px;">
+        <p><strong style="color: #fbbf24;">It's not a chatbot</strong> — it sees your files. It knows your project. When you say "add a button to the leads page," it knows exactly which file to edit.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">4</span>
+</div>
+
+<!-- ==================== SLIDE 5: THE ARCHITECTURE ==================== -->
+<div class="slide">
+    <div class="section-label">Architecture</div>
+    <h1 class="section-title">How It All Connects</h1>
+
+    <pre style="font-size: 16px; line-height: 1.8; text-align: center; border: none; background: transparent; margin-top: 20px;">
+<span style="color: #60a5fa;">Google Drive Folders</span>  (/leads, /invoices, /projects)
+        <span style="color: #4b5563;">&#9660;</span>
+   <span style="color: #fbbf24;">OpenAI API</span>  normalizes messy data &#8594; clean schema
+        <span style="color: #4b5563;">&#9660;</span>
+   <span style="color: #60a5fa;">OpenAI API</span>  cross-references leads &#8596; invoices &#8596; projects
+        <span style="color: #4b5563;">&#9660;</span>
+   <span style="color: #4ade80;">Google Sheets</span>  master datastore (single source of truth)
+        <span style="color: #4b5563;">&#9660;</span>
+   <span style="color: #ffffff;">Dashboard</span>  view everything + take action
+     <span style="color: #4b5563;">&#9500;&#9472;&#9472;</span> <span style="color: #fbbf24;">Gmail</span>   send emails to leads &amp; clients
+     <span style="color: #4b5563;">&#9492;&#9472;&#9472;</span> <span style="color: #fbbf24;">Calendar</span>  set invoice reminders
+    </pre>
+
+    <div class="callout" style="margin-top: 24px;">
+        <p><strong style="color: #60a5fa;">Key insight:</strong> Google Drive, Sheets, Gmail, and Calendar share one OAuth credential. One login unlocks all four.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">5</span>
+</div>
+
+<!-- ==================== SLIDE 6: THE FIVE APIs ==================== -->
+<div class="slide">
+    <div class="section-label">The Stack</div>
+    <h1 class="section-title">Five APIs. Two Auth Steps.</h1>
+
+    <table style="margin-top: 20px;">
+        <tr>
+            <th>API</th>
+            <th>What It Does</th>
+            <th>Auth</th>
+        </tr>
+        <tr>
+            <td><strong style="color: #60a5fa;">Google Drive</strong></td>
+            <td>Scans folders for new/updated spreadsheets</td>
+            <td><span class="badge badge--blue">OAuth</span></td>
+        </tr>
+        <tr>
+            <td><strong style="color: #60a5fa;">Google Sheets</strong></td>
+            <td>Reads &amp; writes the master datastore</td>
+            <td><span class="badge badge--blue">OAuth</span></td>
+        </tr>
+        <tr>
+            <td><strong style="color: #fbbf24;">Gmail</strong></td>
+            <td>Sends emails from dashboard (send-only)</td>
+            <td><span class="badge badge--blue">OAuth</span></td>
+        </tr>
+        <tr>
+            <td><strong style="color: #fbbf24;">Calendar</strong></td>
+            <td>Creates invoice reminders</td>
+            <td><span class="badge badge--blue">OAuth</span></td>
+        </tr>
+        <tr>
+            <td><strong style="color: #4ade80;">OpenAI</strong></td>
+            <td>Normalizes data + fuzzy-matches across objects</td>
+            <td><span class="badge badge--green">API Key</span></td>
+        </tr>
+    </table>
+
+    <div class="two-col" style="margin-top: 24px;">
+        <div class="callout callout--green">
+            <p><strong style="color: #4ade80;">Auth Step 1:</strong> One credentials.json from Google Cloud Console unlocks Drive, Sheets, Gmail, and Calendar.</p>
+        </div>
+        <div class="callout callout--amber">
+            <p><strong style="color: #fbbf24;">Auth Step 2:</strong> One API key from platform.openai.com for data normalization.</p>
+        </div>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">6</span>
+</div>
+
+<!-- ==================== SLIDE 7: WHAT YOU'LL WALK AWAY WITH ==================== -->
+<div class="slide">
+    <div class="section-label">Before We Build</div>
+    <h1 class="section-title">What You'll Walk Away With</h1>
+    <p class="lead">By the end of this session, you will have:</p>
+
+    <div class="card-grid" style="margin-top: 12px;">
+        <div class="card card--highlight">
+            <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="2"/><line x1="4" y1="12" x2="28" y2="12"/></svg></span>
+            <h3>A Working Dashboard</h3>
+            <p>Running on your computer right now. Open a browser, see your data. Leads, invoices, projects — all in one place.</p>
+        </div>
+        <div class="card card--highlight">
+            <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 28V10l2-2h6l2 2v18"/><path d="M16 28V6l2-2h6l2 2v22"/><line x1="2" y1="28" x2="30" y2="28"/></svg></span>
+            <h3>Files You Own</h3>
+            <p>Every file lives on your machine. No subscription. No vendor lock-in. You can open them, read them, change them.</p>
+        </div>
+        <div class="card card--highlight">
+            <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="24" height="24" rx="3"/><text x="16" y="22" text-anchor="middle" font-size="16" font-weight="700" fill="#fbbf24" stroke="none" font-family="monospace">&gt;_</text></svg></span>
+            <h3>The Knowledge to Extend It</h3>
+            <p>Want to add Slack notifications? A new data type? You'll know the pattern: describe what you want to Claude Code and iterate.</p>
+        </div>
+        <div class="card card--highlight">
+            <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C6.5 2 4 6 4 10c0 6 8 6 8 12h8c0-6 8-6 8-12 0-4-2.5-8-8-8-1.5 0-3 .4-4 1-1-.6-2.5-1-4-1z"/><path d="M12 28h8M13 24h6"/></svg></span>
+            <h3>A GitHub Repo with Everything</h3>
+            <p>All the code, documentation, and sample data. Clone it later, share it with your team, use it as a starting point.</p>
+        </div>
+    </div>
+
+    <div class="callout callout--green" style="margin-top: 20px;">
+        <p><strong style="color: #4ade80;">This is not a demo you watch and forget.</strong> You leave with a real thing that works, and the ability to make it do more.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">7</span>
+</div>
+
+<!-- ==================== SLIDE 8: PHASE OVERVIEW ==================== -->
+<div class="slide">
+    <div class="section-label">The Build Plan</div>
+    <h1 class="section-title">Six Phases. One Hour.</h1>
+    <p class="lead">Each phase builds on the last. By the end, everything is connected.</p>
+
+    <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+            <p><strong>Google Cloud Auth Setup</strong> — credentials.json, enable 4 APIs, one OAuth flow <span class="badge badge--blue">15 min</span></p>
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+            <p><strong>Drive Folders + Master Sheet</strong> — Create intake folders and the master spreadsheet <span class="badge badge--blue">5 min</span></p>
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+            <p><strong>ETL Pipeline</strong> — Drive scan &#8594; OpenAI normalization &#8594; cross-reference &#8594; Sheets <span class="badge badge--green">15 min</span></p>
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+            <p><strong>Dashboard Pages</strong> — Overview, leads, invoices, projects with live data <span class="badge badge--green">15 min</span></p>
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+            <p><strong>Gmail Integration</strong> — Email a lead or send an invoice from the dashboard <span class="badge badge--amber">5 min</span></p>
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+            <p><strong>Calendar Integration</strong> — Set payment reminders with one click <span class="badge badge--amber">5 min</span></p>
+        </div>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">8</span>
+</div>
+
+<!-- ==================== SLIDE 9: PHASE 1 - AUTH ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 1</div>
+    <h1 class="section-title">Google Cloud Auth Setup</h1>
+    <p class="lead">Auth is the step that trips everyone up. We're doing it once, live, together.</p>
+
+    <div class="two-col--60-40" style="display: grid; grid-template-columns: 3fr 2fr; gap: 40px;">
+        <div>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content"><p><strong>Google Cloud Console</strong> — console.cloud.google.com</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content"><p><strong>Enable 4 APIs:</strong> Drive, Sheets, Gmail, Calendar</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><p><strong>Create Credentials</strong> &#8594; OAuth client ID &#8594; <strong>Desktop app</strong></p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content"><p><strong>Download JSON immediately</strong> — you will NOT see the secret again</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content"><p><strong>Rename to</strong> <code>credentials.json</code> &#8594; drop in project folder</p></div>
+            </div>
+        </div>
+        <div>
+            <div class="callout callout--red">
+                <p><strong style="color: #f87171;">High-drama moment:</strong> "You will NOT be able to see the client secret again after closing this window. Download the JSON right now."</p>
+            </div>
+            <div class="callout callout--green" style="margin-top: 16px;">
+                <p><strong style="color: #4ade80;">One credentials.json</strong> = Drive + Sheets + Gmail + Calendar. This is the master unlock for the entire Google ecosystem.</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="prompt-btn" onclick="openPromptModal('phase1')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+        View prompts for this phase
+    </button>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">9</span>
+</div>
+
+<!-- ==================== SLIDE 10: PHASE 1 - OPENAI KEY ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 1 (continued)</div>
+    <h1 class="section-title">OpenAI API Key + Environment</h1>
+
+    <div class="two-col">
+        <div>
+            <h2>Get Your OpenAI Key</h2>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content"><p>Go to <strong>platform.openai.com</strong></p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content"><p>API Keys &#8594; <strong>Create new secret key</strong></p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><p>Copy it — shown only once</p></div>
+            </div>
+
+            <div class="callout" style="margin-top: 20px;">
+                <p>We use <strong style="color: #60a5fa;">gpt-4o-mini</strong> — a full pipeline run costs less than one cent.</p>
+            </div>
+        </div>
+        <div>
+            <h2>The .env File</h2>
+            <pre style="font-size: 14px;">
+# Google
+MASTER_SHEET_ID=your_sheet_id
+DRIVE_LEADS_FOLDER=folder_id
+DRIVE_INVOICES_FOLDER=folder_id
+DRIVE_PROJECTS_FOLDER=folder_id
+
+# OpenAI
+OPENAI_API_KEY=sk-your-key
+
+# Flask
+FLASK_SECRET_KEY=random-string</pre>
+            <p style="font-size: 14px; color: #9ca3af; margin-top: 8px;">This file holds all your secrets. Never commit it. Never share it.</p>
+            <div class="callout callout--amber" style="margin-top: 8px; padding: 14px 20px;">
+                <p style="font-size: 14px;"><strong style="color: #fbbf24;">Where do I find the Sheet ID?</strong> Open your Google Sheet. Look at the URL: <code style="font-size: 12px;">docs.google.com/spreadsheets/d/<strong style="color: #fbbf24;">this-long-string</strong>/edit</code>. The long string between <code style="font-size: 12px;">/d/</code> and <code style="font-size: 12px;">/edit</code> is your Sheet ID. Same pattern for Drive folder IDs in the URL.</p>
+            </div>
+        </div>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">10</span>
+</div>
+
+<!-- ==================== SLIDE 11: PHASE 2 - DRIVE + SHEETS ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 2</div>
+    <h1 class="section-title">Drive Folders + Master Sheet</h1>
+    <p class="lead">Set up the intake system and the master datastore.</p>
+
+    <div class="two-col">
+        <div>
+            <h2 style="margin-top: 12px;">Google Drive Structure</h2>
+            <pre style="font-size: 16px; line-height: 2;">
+BusinessHub/
+  &#9500;&#9472;&#9472; leads/       &#8592; drop lead spreadsheets
+  &#9500;&#9472;&#9472; invoices/    &#8592; drop invoice spreadsheets
+  &#9492;&#9472;&#9472; projects/    &#8592; drop project spreadsheets</pre>
+            <p style="font-size: 15px;">Create or upload spreadsheets from any device. Drive syncs them automatically.</p>
+        </div>
+        <div>
+            <h2 style="margin-top: 12px;">Master Google Sheet</h2>
+            <p style="font-size: 15px;">One spreadsheet. Three tabs:</p>
+            <div class="card" style="margin-top: 10px; padding: 16px;">
+                <p><span class="badge badge--blue">Leads</span> name, email, company, source, stage, created_at</p>
+            </div>
+            <div class="card" style="margin-top: 8px; padding: 16px;">
+                <p><span class="badge badge--green">Invoices</span> invoice_number, client, amount, due_date, status</p>
+            </div>
+            <div class="card" style="margin-top: 8px; padding: 16px;">
+                <p><span class="badge badge--amber">Projects</span> name, client, budget, total_billed, deadline, status</p>
+            </div>
+            <p style="font-size: 14px; color: #4ade80; margin-top: 12px; margin-bottom: 0;"><strong>Why Sheets?</strong> Everyone knows how to open a spreadsheet. If something breaks, you can see exactly where.</p>
+        </div>
+    </div>
+
+    <button class="prompt-btn" onclick="openPromptModal('phase2')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+        View prompts for this phase
+    </button>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">11</span>
+</div>
+
+<!-- ==================== SLIDE 12: DATA SCHEMAS ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 2 (continued)</div>
+    <h1 class="section-title">The Data Objects</h1>
+    <p class="lead">Three object types. Consistent schemas. Connected by company name.</p>
+
+    <div class="card-grid card-grid--3">
+        <div class="card">
+            <h3><span class="badge badge--blue">Lead</span></h3>
+            <table style="font-size: 13px; margin-top: 8px;">
+                <tr><td>name</td><td style="color: #9ca3af;">Jane Smith</td></tr>
+                <tr><td>email</td><td style="color: #9ca3af;">jane@acme.com</td></tr>
+                <tr><td>company</td><td style="color: #9ca3af;">Acme Corp</td></tr>
+                <tr><td>source</td><td style="color: #9ca3af;">Referral</td></tr>
+                <tr><td>stage</td><td><span class="badge badge--blue">new</span></td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <h3><span class="badge badge--green">Invoice</span></h3>
+            <table style="font-size: 13px; margin-top: 8px;">
+                <tr><td>invoice_number</td><td style="color: #9ca3af;">INV-0042</td></tr>
+                <tr><td>client</td><td style="color: #9ca3af;">Acme Corp</td></tr>
+                <tr><td>amount</td><td style="color: #9ca3af;">$4,500</td></tr>
+                <tr><td>due_date</td><td style="color: #9ca3af;">2026-04-15</td></tr>
+                <tr><td>status</td><td><span class="badge badge--amber">sent</span></td></tr>
+            </table>
+        </div>
+        <div class="card">
+            <h3><span class="badge badge--amber">Project</span></h3>
+            <table style="font-size: 13px; margin-top: 8px;">
+                <tr><td>name</td><td style="color: #9ca3af;">Website Redesign</td></tr>
+                <tr><td>client</td><td style="color: #9ca3af;">Acme Corp</td></tr>
+                <tr><td>budget</td><td style="color: #9ca3af;">$15,000</td></tr>
+                <tr><td>total_billed</td><td style="color: #9ca3af;">$4,500</td></tr>
+                <tr><td>status</td><td><span class="badge badge--green">active</span></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="callout" style="margin-top: 16px;">
+        <p><strong style="color: #60a5fa;">The connection:</strong> All three objects link by <strong>company/client name</strong>. When an invoice arrives for "Acme Corp", the pipeline finds the matching lead and project automatically.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">12</span>
+</div>
+
+<!-- ==================== SLIDE 13: PHASE 3 - ETL INTRO ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 3</div>
+    <h1 class="section-title">The ETL Pipeline</h1>
+    <p class="lead">Extract. Transform. Load. This is how raw spreadsheets become structured, linked data.</p>
+
+    <div class="step">
+        <div class="step-num" style="background: #60a5fa;">E</div>
+        <div class="step-content">
+            <p><strong>Extract</strong> — Drive API scans folders for new or updated spreadsheets</p>
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-num" style="background: #fbbf24; color: #111827;">T</div>
+        <div class="step-content">
+            <p><strong>Transform</strong> — OpenAI normalizes messy columns into canonical schemas, then cross-references across all three object types</p>
+        </div>
+    </div>
+    <div class="step">
+        <div class="step-num" style="background: #4ade80; color: #111827;">L</div>
+        <div class="step-content">
+            <p><strong>Load</strong> — Write clean, linked data to the master Google Sheet</p>
+        </div>
+    </div>
+
+    <div class="callout callout--amber" style="margin-top: 24px;">
+        <p><strong style="color: #fbbf24;">Key teaching moment:</strong> "What we are building is called an ETL pipeline. Real data engineers build these every day. By the end of this session, so will you."</p>
+    </div>
+
+    <button class="prompt-btn" onclick="openPromptModal('phase3')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+        View prompts for this phase
+    </button>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">13</span>
+</div>
+
+<!-- ==================== SLIDE 14: NORMALIZATION ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 3 (continued)</div>
+    <h1 class="section-title">OpenAI Normalization</h1>
+    <p class="lead">Messy spreadsheet in. Clean, structured data out.</p>
+
+    <div class="two-col">
+        <div>
+            <h3 style="color: #f87171;">Before (raw spreadsheet)</h3>
+            <pre style="font-size: 13px;">
+Headers:
+  "Full Name", "Email Address",
+  "Business Name", "How Found",
+  "Date Added"
+
+Rows:
+  "Jane Smith", "jane@acme.com",
+  "Acme Corporation", "LinkedIn",
+  "April 1, 2026"</pre>
+            <p style="font-size: 14px; color: #9ca3af;">Wrong column names. Inconsistent date format. Missing fields.</p>
+        </div>
+        <div>
+            <h3 style="color: #4ade80;">After (normalized)</h3>
+            <pre style="font-size: 13px;">
+{
+  "name": "Jane Smith",
+  "email": "jane@acme.com",
+  "company": "Acme Corporation",
+  "source": "LinkedIn",
+  "stage": "new",
+  "created_at": "2026-04-01"
+}
+</pre>
+            <p style="font-size: 14px; color: #9ca3af;">Canonical schema. Clean date. Default stage applied. Ready for Sheets.</p>
+        </div>
+    </div>
+
+    <div class="callout callout--green" style="margin-top: 12px;">
+        <p><strong style="color: #4ade80;">Why OpenAI?</strong> "Full Name" &#8594; <code>name</code>. "Business Name" &#8594; <code>company</code>. "April 1, 2026" &#8594; "2026-04-01". A language model handles this naturally. Regex would break on the first edge case.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">14</span>
+</div>
+
+<!-- ==================== SLIDE 15: CROSS-REFERENCE ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 3 (continued)</div>
+    <h1 class="section-title">Cross-Reference Reconciliation</h1>
+    <p class="lead">This is where your data starts talking to itself.</p>
+
+    <pre style="font-size: 14px; line-height: 1.7; text-align: center; background: transparent; border: none; margin: 8px 0;">
+New invoice arrives: <span style="color: #4ade80;">{ client: "Acme Corporation", amount: $4,500 }</span>
+    <span style="color: #4b5563;">&#9660;</span> search Leads tab &#8594; Found: <span style="color: #60a5fa;">"Acme Corp"</span> (stage: "contacted") &#8594; <span style="color: #fbbf24;">update stage &#8594; "converted"</span>
+    <span style="color: #4b5563;">&#9660;</span> search Projects tab &#8594; Found: <span style="color: #60a5fa;">"Website Redesign"</span> (client: "Acme Corp") &#8594; <span style="color: #fbbf24;">total_billed += $4,500</span>
+    </pre>
+
+    <div class="callout" style="margin: 8px 0; padding: 14px 24px;">
+        <p style="font-size: 15px;"><strong style="color: #60a5fa;">Fuzzy matching:</strong> "Acme Corporation" and "Acme Corp" are obviously the same company to you. And to OpenAI. But <code>==</code> says they're different. This is why we use a language model.</p>
+    </div>
+
+    <table style="margin-top: 8px;">
+        <tr><th>Trigger</th><th>Lookup</th><th>Auto-Update</th></tr>
+        <tr><td>New invoice</td><td>Match lead by client</td><td>Lead stage &#8594; "converted"</td></tr>
+        <tr><td>New invoice</td><td>Match project by client</td><td>Project total_billed += amount</td></tr>
+        <tr><td>New lead</td><td>Match project by company</td><td>Link lead to project</td></tr>
+        <tr><td>New project</td><td>Match leads + invoices</td><td>Associate existing records</td></tr>
+    </table>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">15</span>
+</div>
+
+<!-- ==================== SLIDE 16: PHASE 4 - DASHBOARD ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 4</div>
+    <h1 class="section-title">Building the Dashboard</h1>
+    <p class="lead">Four pages. Real data. Built by describing what you want in plain English.</p>
+
+    <div class="card-grid">
+        <div class="card">
+            <h3>/dashboard</h3>
+            <p>Overview — 4 metric cards (leads, revenue, invoices, projects), revenue chart, recent activity feed, "Sync Drive" button</p>
+        </div>
+        <div class="card">
+            <h3>/leads</h3>
+            <p>Filterable lead table with stage badges (new, contacted, converted). "Email" button per row.</p>
+        </div>
+        <div class="card">
+            <h3>/invoices</h3>
+            <p>Invoice table with status badges. "Send Invoice" and "Set Reminder" action buttons.</p>
+        </div>
+        <div class="card">
+            <h3>/projects</h3>
+            <p>Card layout with budget progress bars. Linked lead and invoice counts. Click to expand.</p>
+        </div>
+    </div>
+
+    <button class="prompt-btn" onclick="openPromptModal('phase4')">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+        View prompts for this phase — one per page
+    </button>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">16</span>
+</div>
+
+<!-- ==================== SLIDE 17: CLAUDE CODE METHOD ==================== -->
+<div class="slide">
+    <div class="section-label">How We Build</div>
+    <h1 class="section-title">The Golden Formula</h1>
+    <p class="lead">Every prompt to Claude Code follows one pattern:</p>
+
+    <div class="card-grid card-grid--3" style="margin-top: 12px;">
+        <div class="card card--highlight" style="padding: 18px;">
+            <h3 style="color: #60a5fa;">Context</h3>
+            <p>Where you are and what's happening.</p>
+            <p style="margin-top: 6px;"><em>"I'm on the /invoices page"</em></p>
+        </div>
+        <div class="card card--highlight" style="padding: 18px;">
+            <h3 style="color: #4ade80;">Goal</h3>
+            <p>The outcome you want.</p>
+            <p style="margin-top: 6px;"><em>"Add a Set Reminder button on overdue invoices"</em></p>
+        </div>
+        <div class="card card--highlight" style="padding: 18px;">
+            <h3 style="color: #fbbf24;">Constraints</h3>
+            <p>What NOT to change.</p>
+            <p style="margin-top: 6px;"><em>"Don't change the table layout"</em></p>
+        </div>
+    </div>
+
+    <h3 style="margin-top: 16px;">Full example:</h3>
+    <div class="callout" style="margin: 10px 0; padding: 16px 24px;">
+        <p style="font-size: 16px;">"I'm on the /invoices page. Overdue invoices need a 'Set Reminder' button that creates a Google Calendar event for the due date. Use the existing calendar service and keep the table layout as-is."</p>
+    </div>
+
+    <div class="callout callout--amber" style="margin: 10px 0; padding: 16px 24px;">
+        <p style="font-size: 16px;"><strong style="color: #fbbf24;">When Claude gets it wrong</strong> — this is the best teaching moment. Say: "Not quite — use due_date, not created_at." The audience sees that iteration is normal, not failure.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">17</span>
+</div>
+
+<!-- ==================== SLIDE 18: PHASE 5 - GMAIL ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 5</div>
+    <h1 class="section-title">Gmail Integration</h1>
+    <p class="lead">Email a lead or send an invoice — without leaving the dashboard.</p>
+
+    <div class="two-col">
+        <div>
+            <h2>How It Works</h2>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content"><p>User clicks <strong>"Email"</strong> on a lead row</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content"><p>Compose modal opens — <strong>pre-filled</strong> with lead's email</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><p>User types subject + body, clicks <strong>Send</strong></p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content"><p>Flask calls Gmail API &#8594; email sent from your account</p></div>
+            </div>
+
+            <div class="callout callout--green" style="margin-top: 20px;">
+                <p><strong style="color: #4ade80;">Send-only scope.</strong> The app can send emails but cannot read your inbox. Safe by design.</p>
+            </div>
+        </div>
+        <div>
+            <button class="prompt-btn" onclick="openPromptModal('phase5')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+                View prompts for Gmail
+            </button>
+
+            <h3 style="margin-top: 20px;">Under the hood:</h3>
+            <pre style="font-size: 13px;">
+POST /api/email/send
+{
+  "to": "jane@acme.com",
+  "subject": "Following up",
+  "body": "Hi Jane, ..."
+}
+
+&#8594; Gmail API: messages.send()
+
+&#8594; { "status": "sent" }</pre>
+        </div>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">18</span>
+</div>
+
+<!-- ==================== SLIDE 19: PHASE 6 - CALENDAR ==================== -->
+<div class="slide">
+    <div class="section-label">Phase 6</div>
+    <h1 class="section-title">Calendar Integration</h1>
+    <p class="lead">One click = invoice due date on your Google Calendar with a 24-hour reminder.</p>
+
+    <div class="two-col">
+        <div>
+            <h2>How It Works</h2>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content"><p>User clicks <strong>"Set Reminder"</strong> on an invoice</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content"><p>Flask creates an all-day Calendar event on the due date</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><p>Popup + email reminder fires <strong>24 hours before</strong></p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content"><p>Returns a direct link to the Calendar event</p></div>
+            </div>
+
+            <div class="callout callout--amber" style="margin-top: 20px;">
+                <p><strong style="color: #fbbf24;">The moment it clicks:</strong> The audience sees that the dashboard isn't just displaying data — it's doing things. Real actions in real tools they use every day.</p>
+            </div>
+        </div>
+        <div>
+            <h2>What Gets Created</h2>
+            <div class="card" style="border-color: #d97706; margin-bottom: 16px;">
+                <h3 style="color: #fbbf24;">Calendar Event</h3>
+                <table style="font-size: 13px;">
+                    <tr><td>Title</td><td style="color: #d1d5db;">Invoice Due: INV-0042 - Acme Corp ($4,500)</td></tr>
+                    <tr><td>Date</td><td style="color: #d1d5db;">April 15, 2026</td></tr>
+                    <tr><td>Reminder</td><td style="color: #d1d5db;">24h before (popup + email)</td></tr>
+                </table>
+            </div>
+            <button class="prompt-btn" onclick="openPromptModal('phase6')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
+                View prompts for Calendar
+            </button>
+        </div>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">19</span>
+</div>
+
+<!-- ==================== SLIDE 20: WHEN IT BREAKS ==================== -->
+<div class="slide">
+    <div class="section-label">The Most Important Slide</div>
+    <h1 class="section-title">When It Breaks</h1>
+
+    <div class="callout callout--red" style="margin-top: 16px;">
+        <p style="font-size: 20px; font-style: normal;"><strong style="color: #f87171;">SAY THIS:</strong> "Watch what I do here — this is the most important part of the demo. I am not fixing code. I am describing the problem in plain English and letting Claude Code figure it out."</p>
+    </div>
+
+    <h2 style="margin-top: 24px;">Example debugging prompts:</h2>
+
+    <table>
+        <tr><th>Problem</th><th>What You Say to Claude Code</th></tr>
+        <tr>
+            <td>App won't start</td>
+            <td>"app.py crashes on startup. Read the error and fix it."</td>
+        </tr>
+        <tr>
+            <td>Page shows no data</td>
+            <td>"/leads is empty but the Sheet has data. Debug this."</td>
+        </tr>
+        <tr>
+            <td>Email fails</td>
+            <td>"Send email returns 403. Gmail API is enabled. Check scopes."</td>
+        </tr>
+        <tr>
+            <td>Cross-ref missed</td>
+            <td>"Invoice for Acme didn't update the lead. Check reconciliation."</td>
+        </tr>
+        <tr>
+            <td>OpenAI returns junk</td>
+            <td>"Normalization put company name in the email field. Fix the prompt."</td>
+        </tr>
+    </table>
+
+    <div class="callout callout--green" style="margin-top: 20px;">
+        <p><strong style="color: #4ade80;">Narrating through a real error is the most valuable thing a non-technical audience can watch.</strong> It shows that errors are normal, and that describing the problem clearly is a real, transferable skill.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">20</span>
+</div>
+
+<!-- ==================== SLIDE 21: ARCHITECTURE RECAP ==================== -->
+<div class="slide">
+    <div class="section-label">Under the Hood</div>
+    <h1 class="section-title">Clean Architecture</h1>
+    <p class="lead">This is how the app stays organized — so when something breaks, you know exactly where to look.</p>
+
+    <p style="font-size: 16px; color: #9ca3af; margin-bottom: 16px;">Every request flows through four layers. Each layer has one job.</p>
+
+    <div class="card-grid" style="margin-top: 8px;">
+        <div class="card">
+            <h3 style="color: #60a5fa;">Route</h3>
+            <p>"What URL was hit?" — Maps URLs to controllers. Thin wiring, nothing else.</p>
+        </div>
+        <div class="card">
+            <h3 style="color: #4ade80;">Controller</h3>
+            <p>"What did the user send?" — Reads the request, calls the right service, returns a response.</p>
+        </div>
+        <div class="card">
+            <h3 style="color: #fbbf24;">Service</h3>
+            <p>"What should happen?" — Business logic, API calls, data processing. The brains.</p>
+        </div>
+        <div class="card">
+            <h3 style="color: #f87171;">Repository</h3>
+            <p>"Where is the data?" — Reads and writes to files or Google Sheets. Data access only.</p>
+        </div>
+    </div>
+
+    <pre style="text-align: center; font-size: 18px; background: transparent; border: none; margin-top: 20px; letter-spacing: 2px;">
+<span style="color: #60a5fa;">Route</span>  <span style="color: #4b5563;">&#8594;</span>  <span style="color: #4ade80;">Controller</span>  <span style="color: #4b5563;">&#8594;</span>  <span style="color: #fbbf24;">Service</span>  <span style="color: #4b5563;">&#8594;</span>  <span style="color: #f87171;">Repository</span>
+    </pre>
+
+    <div class="callout" style="margin-top: 16px;">
+        <p><strong style="color: #60a5fa;">Why this matters:</strong> When something breaks, you know exactly which layer to look at. The route didn't match? The controller read the wrong field? The service called the wrong API? The repository wrote to the wrong file? One layer, one problem.</p>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">21</span>
+</div>
+
+<!-- ==================== SLIDE 22: THREE TAKEAWAYS ==================== -->
+<div class="slide">
+    <div class="section-label">Closing</div>
+    <h1 class="section-title">Three Takeaways</h1>
+
+    <div style="margin-top: 40px;">
+        <div class="step" style="margin-bottom: 32px;">
+            <div class="step-num" style="width: 44px; height: 44px; font-size: 20px;">1</div>
+            <div class="step-content">
+                <p style="font-size: 22px;"><strong>You don't need to understand the code — you need to understand what you want.</strong></p>
+                <p style="color: #9ca3af;">Claude Code writes the code. You direct it. The skill is knowing what your data should look like and what you want to do with it.</p>
+            </div>
+        </div>
+
+        <div class="step" style="margin-bottom: 32px;">
+            <div class="step-num" style="width: 44px; height: 44px; font-size: 20px;">2</div>
+            <div class="step-content">
+                <p style="font-size: 22px;"><strong>Define your objects. Define your relationships. The rest follows.</strong></p>
+                <p style="color: #9ca3af;">The real work isn't coding — it's deciding what a "lead" is, what an "invoice" is, and how they connect. Once that's clear, the pipeline builds itself.</p>
+            </div>
+        </div>
+
+        <div class="step" style="margin-bottom: 32px;">
+            <div class="step-num" style="width: 44px; height: 44px; font-size: 20px;">3</div>
+            <div class="step-content">
+                <p style="font-size: 22px;"><strong>A messy first attempt you can iterate on beats waiting for a perfect plan.</strong></p>
+                <p style="color: #9ca3af;">Ship something. Click around. See what's wrong. Describe the problem to Claude Code. Iterate. That's the process.</p>
+            </div>
+        </div>
+    </div>
+
+    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+    <span class="slide-num">22</span>
+</div>
+
+<!-- ==================== SLIDE 23: WHAT'S NEXT ==================== -->
+<div class="slide slide--title">
+    <p class="lead" style="margin-bottom: 16px; font-size: 18px; color: #6b7280;">Leave them with this:</p>
+    <h1 style="font-size: 38px; line-height: 1.4;">"You don't need to understand<br>how it works — you just need to<br>know what you want, and where<br>your work lives."</h1>
+
+    <div style="margin-top: 48px;">
+        <p class="lead">What data source would <em>you</em> connect if this was your project?</p>
+    </div>
+
+    <div style="margin-top: 40px; padding-top: 24px; border-top: 1px solid #374151;">
+        <p style="font-size: 15px; color: #6b7280;">Resources shared after session &bull; All code on GitHub &bull; Documentation included</p>
+    </div>
+
+    <span class="slide-num">23</span>
+</div>
+
+<!-- ===== Presentation UI ===== -->
+<div id="slide-indicator"></div>
+<div id="progress-bar"></div>
+
+<script>
+(function () {
+    var slides = document.querySelectorAll('.slide');
+    var total = slides.length;
+    var current = 0;
+    var indicator = document.getElementById('slide-indicator');
+    var progressBar = document.getElementById('progress-bar');
+
+    function show(index) {
+        if (index < 0 || index >= total) return;
+        // Hide previous
+        slides[current].classList.remove('active');
+        current = index;
+        // Show new
+        slides[current].classList.add('active');
+        // Update indicator
+        indicator.textContent = (current + 1) + ' / ' + total;
+        // Update progress bar
+        progressBar.style.width = ((current + 1) / total * 100) + '%';
+    }
+
+    // Initialize
+    show(0);
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+            e.preventDefault();
+            show(current + 1);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            show(current - 1);
+        } else if (e.key === 'Home') {
+            e.preventDefault();
+            show(0);
+        } else if (e.key === 'End') {
+            e.preventDefault();
+            show(total - 1);
+        } else if (e.key === 'f' || e.key === 'F') {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(function () {});
+            } else {
+                document.exitFullscreen();
+            }
+        } else if (e.key === 'Escape') {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        }
+    });
+
+    // Click to advance (ignore if modal is open)
+    document.addEventListener('click', function (e) {
+        if (e.target.closest('a, button, #prompt-modal-overlay')) return;
+        if (document.getElementById('prompt-modal-overlay').classList.contains('open')) return;
+        show(current + 1);
+    });
+
+    // Close modal on Escape
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            document.getElementById('prompt-modal-overlay').classList.remove('open');
+        }
+    });
+})();
+
+// ===== Prompt Modal Data =====
+var promptData = {
+    phase1: {
+        title: 'Phase 1 — Project Scaffold + Auth',
+        prompts: [
+            {
+                label: 'Step 1: Create the project',
+                text: 'Create a new Flask project following the structure in CLAUDE.md. Set up the app factory pattern in app.py with Flask-Login. Create the route, controller, service, and repository directories with __init__.py files. Add config.py that reads from .env using python-dotenv. Include a hardcoded demo user (admin / demo123). Generate requirements.txt.',
+                caveat: 'Make sure credentials.json is in the project root before running. If Claude asks about database setup, tell it we use JSON files and Google Sheets — no database.'
+            },
+            {
+                label: 'Step 2: Login page + protected routes',
+                text: 'Create a login page at /login with username and password fields. On success, redirect to /dashboard. On failure, flash "Invalid username or password." Protect all routes except /login with @login_required. Create base.html with a top nav showing app name, nav links (Dashboard, Leads, Invoices, Projects), and a logout button.',
+                caveat: 'If the login page renders but the form doesn\'t submit, check that the route handles both GET and POST methods. Flask-Login needs a user_loader callback — Claude sometimes forgets this.'
+            }
+        ]
+    },
+    phase2: {
+        title: 'Phase 2 — Google Services + Drive',
+        prompts: [
+            {
+                label: 'Step 1: Google Sheets service',
+                text: 'Create services/sheets_service.py. Authenticate with Google using credentials.json and these OAuth scopes: spreadsheets, drive.readonly, gmail.send, calendar.events. Implement read_tab(tab_name) to read all rows from a tab in the master spreadsheet, and write_tab(tab_name, rows) to write rows. Get the spreadsheet ID from config. Handle token refresh and the first-run browser auth flow.',
+                caveat: 'The first time you run anything that touches Google, a browser window will pop up asking you to authorize. This is normal — click Allow. A token.json file gets saved so it never asks again.'
+            },
+            {
+                label: 'Step 2: Google Drive service',
+                text: 'Create services/drive_service.py. Use the Google Drive API to scan three folders for Google Spreadsheets. Folder IDs come from .env: DRIVE_LEADS_FOLDER, DRIVE_INVOICES_FOLDER, DRIVE_PROJECTS_FOLDER. Compare each file\'s modifiedTime against a last_synced timestamp in data/sync_state.json. Return a list of new or updated files with their ID, name, and source folder.',
+                caveat: 'Drive folder IDs are in the URL when you open the folder — the long string after /folders/. If "no new files found," double-check that the folder IDs in .env match what\'s in your Drive URL.'
+            }
+        ]
+    },
+    phase3: {
+        title: 'Phase 3 — ETL Pipeline',
+        prompts: [
+            {
+                label: 'Step 1: OpenAI normalization service',
+                text: 'Create services/openai_service.py with two methods. normalize(headers, rows, object_type) sends raw spreadsheet data to gpt-4o-mini with the canonical schema for that object type (lead, invoice, or project from CLAUDE.md) and returns structured JSON. reconcile(new_data, existing_leads, existing_invoices, existing_projects) cross-references new records against existing data using fuzzy company name matching and returns updates to apply. Use JSON response format for both calls.',
+                caveat: 'If OpenAI returns fields in the wrong order or misses a field, the prompt needs to be more explicit. Tell Claude: "The schema description in the OpenAI prompt needs exact field names and types listed out." Cost for a full run: under one cent.'
+            },
+            {
+                label: 'Step 2: Pipeline orchestration',
+                text: 'Create services/etl_service.py that runs the full pipeline: scan Drive for new files, read each spreadsheet via Sheets API, normalize with OpenAI based on which folder the file came from, reconcile across all three object types, and write everything back to the master sheet. Create scripts/full_pipeline.py as a standalone CLI entry point. One command: python3 scripts/full_pipeline.py',
+                caveat: 'Run the pipeline once manually before wiring it to the dashboard button. If reconciliation seems off, check the master sheet directly — the data might already be correct and Claude just needs to see it.'
+            },
+            {
+                label: 'Step 3: Sync endpoint',
+                text: 'Create a POST /api/sync endpoint that triggers the full ETL pipeline. Follow route to controller to service pattern. Return JSON with status, counts of records added and updated, and any errors. Add a "Sync Drive" button to the dashboard header that calls this endpoint and shows the result.',
+                caveat: 'This endpoint can take 10-15 seconds because it calls OpenAI. Add a loading spinner or "Syncing..." text on the button while it runs so the UI doesn\'t feel frozen.'
+            }
+        ]
+    },
+    phase4: {
+        title: 'Phase 4 — Dashboard Pages',
+        prompts: [
+            {
+                label: 'Main dashboard (/dashboard)',
+                text: 'Build the /dashboard page. Show 4 metric cards: total leads, outstanding invoice amount (sum of unpaid), active projects count, and revenue this month (sum of paid invoices). Add a Chart.js bar chart showing paid invoices grouped by month. Add a recent activity feed showing the last 10 records. Include the "Sync Drive" button. Use the color palette from Design.md.',
+                caveat: 'If the chart doesn\'t render, check that Chart.js is loaded from the CDN in base.html and that the data is passed to the template as JSON. If metrics show zero, the data might not be in Sheets yet — run the pipeline first.'
+            },
+            {
+                label: 'Leads page (/leads)',
+                text: 'Build the /leads page with metric cards for lead stages. Data table with columns: name, email, company, source, stage, created_at. Stage shown as colored badges — new is blue, contacted is amber, converted is green. Add an "Email" button on rows that have an email address. Add filter buttons by stage above the table.',
+                caveat: 'If the Email button doesn\'t appear on some rows, it\'s because those leads have no email. That\'s by design — the button only shows when there\'s an email to send to.'
+            },
+            {
+                label: 'Invoices page (/invoices)',
+                text: 'Build the /invoices page with metric cards for: total invoiced, total paid, total outstanding, and overdue count. Data table with status badges — draft is gray, sent is blue, paid is green, overdue is red. Add "Send Invoice" and "Set Reminder" action buttons per row.',
+                caveat: 'Overdue detection: compare due_date against today\'s date. If the status is "sent" and due_date has passed, it should show as overdue. Tell Claude this explicitly if it doesn\'t handle it.'
+            },
+            {
+                label: 'Projects page (/projects)',
+                text: 'Build the /projects page using card layout instead of a table. Each card: project name, client, status badge, budget progress bar showing total_billed divided by budget as a percentage. Show linked lead count and invoice count. Cards expand on click to show associated leads and invoices.',
+                caveat: 'The progress bar color should change: green under 75%, amber at 75-90%, red above 90%. If linked counts show zero, the cross-reference step might not have run — trigger a sync.'
+            }
+        ]
+    },
+    phase5: {
+        title: 'Phase 5 — Gmail Integration',
+        prompts: [
+            {
+                label: 'Step 1: Gmail service',
+                text: 'Create services/gmail_service.py with a send_email(to, subject, body) method. Use the Gmail API with the gmail.send scope — send only, no inbox read access. Build the email using Python\'s email.mime.text module and base64 encode it for the API. Use the same OAuth credentials as the other Google services.',
+                caveat: 'If you get a 403 "Insufficient Permission" error, your token.json was created before gmail.send was in the scopes. Delete token.json and re-run to trigger a fresh auth with all scopes.'
+            },
+            {
+                label: 'Step 2: Email compose modal',
+                text: 'Add an email compose modal to base.html that can be triggered from any page. Fields: To (pre-filled), Subject (pre-filled based on context), and Body textarea. Send button POSTs to /api/email/send via fetch. Show a success or error toast. Wire all "Email" and "Send Invoice" buttons to open this modal with the right data pre-filled.',
+                caveat: 'The modal should prevent the slide from advancing when clicked. If emails land in spam, that\'s a Google deliverability thing, not a code bug — it\'s expected for new OAuth apps sending their first emails.'
+            }
+        ]
+    },
+    phase6: {
+        title: 'Phase 6 — Calendar Integration',
+        prompts: [
+            {
+                label: 'Step 1: Calendar service',
+                text: 'Create services/calendar_service.py with a create_reminder(title, date, description) method. Create an all-day Google Calendar event on the given date using the Calendar API v3. Set reminders to 24 hours before with both popup and email notifications. Return the event ID and htmlLink so the user can click through.',
+                caveat: 'If you get a 403, same fix as Gmail — delete token.json and re-auth. The event is created on the "primary" calendar. If the user has multiple calendars, it always goes to their main one.'
+            },
+            {
+                label: 'Step 2: Wire the Set Reminder buttons',
+                text: 'Wire the "Set Reminder" buttons on the /invoices page to call POST /api/calendar/remind. Pre-fill with: title as "Invoice Due: INV-0042 - Acme Corp ($4,500)", date as the due_date, and description with invoice details. Show the calendar event link on success so the user can click to view it.',
+                caveat: 'All-day events use "date" not "dateTime" in the Calendar API. If Claude uses dateTime, the event will show as a timed event instead of an all-day banner. Tell it: "Use date field, not dateTime."'
+            }
+        ]
+    }
+};
+
+function openPromptModal(phaseKey) {
+    var data = promptData[phaseKey];
+    if (!data) return;
+
+    var header = document.getElementById('prompt-modal-title');
+    var body = document.getElementById('prompt-modal-body');
+
+    header.textContent = data.title;
+    body.innerHTML = '';
+
+    data.prompts.forEach(function (prompt) {
+        var block = document.createElement('div');
+        block.className = 'modal-prompt-block';
+
+        var label = document.createElement('div');
+        label.className = 'modal-prompt-label';
+        label.textContent = prompt.label;
+        block.appendChild(label);
+
+        var text = document.createElement('div');
+        text.className = 'modal-prompt-text';
+        text.textContent = prompt.text;
+        text.addEventListener('click', function () {
+            navigator.clipboard.writeText(prompt.text).then(function () {
+                text.classList.add('copied');
+                setTimeout(function () { text.classList.remove('copied'); }, 1500);
+            });
+        });
+        block.appendChild(text);
+
+        if (prompt.caveat) {
+            var caveat = document.createElement('div');
+            caveat.className = 'modal-caveat';
+            caveat.innerHTML = '<svg class="modal-caveat-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg><p>' + prompt.caveat + '</p>';
+            block.appendChild(caveat);
+        }
+
+        body.appendChild(block);
+    });
+
+    document.getElementById('prompt-modal-overlay').classList.add('open');
+}
+
+function closePromptModal() {
+    document.getElementById('prompt-modal-overlay').classList.remove('open');
+}
+</script>
+
+<!-- Prompt Modal -->
+<div id="prompt-modal-overlay" onclick="if(event.target===this)closePromptModal()">
+    <div id="prompt-modal">
+        <div id="prompt-modal-header">
+            <h2 id="prompt-modal-title"></h2>
+            <button id="prompt-modal-close" onclick="closePromptModal()">&times;</button>
+        </div>
+        <div id="prompt-modal-body"></div>
+    </div>
+</div>
+
+</body>
+</html>
