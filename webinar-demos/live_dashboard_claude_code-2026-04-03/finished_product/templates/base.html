@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Live Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    {% if current_user.is_authenticated %}
+    <nav class="top-bar">
+        <div class="top-bar__left">
+            <a href="{{ url_for('dashboard.dashboard_page') }}" class="top-bar__brand">Live Dashboard</a>
+            <div class="top-bar__nav">
+                <a href="{{ url_for('dashboard.dashboard_page') }}" class="nav-link {% if request.endpoint == 'dashboard.dashboard_page' %}nav-link--active{% endif %}">Dashboard</a>
+                <a href="{{ url_for('dashboard.reddit_page') }}" class="nav-link {% if request.endpoint == 'dashboard.reddit_page' %}nav-link--active{% endif %}">Reddit</a>
+                <a href="{{ url_for('dashboard.summary_page') }}" class="nav-link {% if request.endpoint == 'dashboard.summary_page' %}nav-link--active{% endif %}">Summary</a>
+            </div>
+        </div>
+        <div class="top-bar__right">
+            <span class="top-bar__user">{{ current_user.username }}</span>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn--outline btn--sm">Logout</a>
+        </div>
+    </nav>
+    {% endif %}
+
+    <main class="content">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages">
+            {% for category, message in messages %}
+            <div class="flash flash--{{ category }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
