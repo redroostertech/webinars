@@ -66,7 +66,7 @@ body {
     background: linear-gradient(90deg, #2563eb, #16a34a, #d97706);
 }
 
-/* Slide number (hidden on screen — we use the floating indicator instead) */
+/* Slide number (hidden on screen -- we use the floating indicator instead) */
 .slide-num {
     position: absolute;
     bottom: 30px;
@@ -84,6 +84,35 @@ body {
     font-size: 12px;
     color: #4b5563;
 }
+
+/* WWCD Footer */
+.wwcd-footer {
+    position: absolute;
+    bottom: 24px;
+    left: 80px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+    background: #fbbf24;
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: 1px solid #f59e0b;
+    transition: all 0.2s;
+    z-index: 10;
+}
+.wwcd-footer:hover {
+    color: #000000;
+    background: #fcd34d;
+    border-color: #fbbf24;
+}
+.wwcd-footer svg { flex-shrink: 0; }
+
+/* Card with green border */
+.card--green { border-color: #16a34a; border-width: 2px; }
 
 /* ===== Title Slide ===== */
 .slide--title {
@@ -562,6 +591,137 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
     margin-top: 1px;
 }
 
+/* ===== WWCD Modal ===== */
+#wwcd-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+}
+
+#wwcd-modal-overlay.open {
+    display: flex;
+}
+
+#wwcd-modal {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 740px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+    animation: modal-in 0.2s ease;
+}
+
+#wwcd-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 28px 16px;
+    border-bottom: 1px solid #374151;
+}
+
+#wwcd-modal-header h2 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+}
+
+#wwcd-modal-close {
+    background: none;
+    border: none;
+    color: #6b7280;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+#wwcd-modal-close:hover { color: #ffffff; }
+
+#wwcd-modal-body {
+    padding: 24px 28px 28px;
+}
+
+/* ===== Insight Toggle & Segments ===== */
+.insight-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    padding: 6px 14px;
+    border-radius: 6px;
+    transition: all 0.15s;
+    margin-bottom: 12px;
+}
+.insight-toggle:hover {
+    background: rgba(251, 191, 36, 0.2);
+}
+.insight-toggle.active {
+    background: rgba(251, 191, 36, 0.25);
+    border-color: #fbbf24;
+}
+
+.insight-segment {
+    margin-bottom: 12px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+.insight-segment__label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding: 4px 12px;
+    display: inline-block;
+    border-radius: 4px 4px 0 0;
+}
+.insight-segment__text {
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.6;
+    border-radius: 0 8px 8px 8px;
+}
+.insight-segment__explanation {
+    font-size: 12px;
+    padding: 6px 14px 10px;
+    font-style: italic;
+    opacity: 0.8;
+}
+
+/* Type colors */
+.insight-segment--context .insight-segment__label { background: #2563eb; color: white; }
+.insight-segment--context .insight-segment__text { background: rgba(37, 99, 235, 0.12); color: #93c5fd; border: 1px solid rgba(37, 99, 235, 0.2); }
+.insight-segment--context .insight-segment__explanation { color: #60a5fa; }
+
+.insight-segment--goal .insight-segment__label { background: #16a34a; color: white; }
+.insight-segment--goal .insight-segment__text { background: rgba(22, 163, 74, 0.12); color: #86efac; border: 1px solid rgba(22, 163, 74, 0.2); }
+.insight-segment--goal .insight-segment__explanation { color: #4ade80; }
+
+.insight-segment--specifics .insight-segment__label { background: #7c3aed; color: white; }
+.insight-segment--specifics .insight-segment__text { background: rgba(124, 58, 237, 0.12); color: #c4b5fd; border: 1px solid rgba(124, 58, 237, 0.2); }
+.insight-segment--specifics .insight-segment__explanation { color: #a78bfa; }
+
+.insight-segment--technique .insight-segment__label { background: #d97706; color: white; }
+.insight-segment--technique .insight-segment__text { background: rgba(217, 119, 6, 0.12); color: #fcd34d; border: 1px solid rgba(217, 119, 6, 0.2); }
+.insight-segment--technique .insight-segment__explanation { color: #fbbf24; }
+
 /* ===== Presentation UI overlay ===== */
 #slide-indicator {
     position: fixed;
@@ -606,7 +766,7 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
 <!-- ==================== SLIDE 1: TITLE ==================== -->
 <div class="slide slide--title">
     <h1>Build Your Personal<br>Business Dashboard</h1>
-    <p class="subtitle">With Claude Code — From Zero to a Working App</p>
+    <p class="subtitle">With Claude Code: From Zero to a Working App</p>
     <div style="margin: 24px 0;">
         <span class="pill pill--blue">Google Drive</span>
         <span class="pill pill--blue">Google Sheets</span>
@@ -614,7 +774,7 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         <span class="pill pill--amber">Gmail</span>
         <span class="pill pill--amber">Calendar</span>
     </div>
-    <p class="meta">60 Minutes &bull; Hands-On &bull; No Coding Experience Required</p>
+    <p class="meta">Working Series &bull; Hands-On &bull; No Coding Experience Required</p>
     <span class="slide-num">1</span>
 </div>
 
@@ -646,7 +806,7 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         <p>"I don't need more tools. I need the tools I already use to talk to each other."</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+
     <span class="slide-num">2</span>
 </div>
 
@@ -654,12 +814,12 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
 <div class="slide">
     <div class="section-label">The Solution</div>
     <h1 class="section-title">One Dashboard. All Your Data. Actionable.</h1>
-    <p class="lead">By the end of this session, you'll have a working dashboard that:</p>
+    <p class="lead">By the end of this series, you'll have a working dashboard that:</p>
 
     <div class="card-grid">
         <div class="card card--highlight">
             <h3>Auto-Organizes</h3>
-            <p>Drop a spreadsheet into Google Drive. The pipeline normalizes it into your master database — no manual cleanup.</p>
+            <p>Drop a spreadsheet into Google Drive. The pipeline normalizes it into your master database, no manual cleanup.</p>
         </div>
         <div class="card card--highlight">
             <h3>Cross-References</h3>
@@ -667,7 +827,7 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         </div>
         <div class="card">
             <h3>Emails Directly</h3>
-            <p>Click a button on a lead to send them an email — right from the dashboard. No switching apps.</p>
+            <p>Click a button on a lead to send them an email, right from the dashboard. No switching apps.</p>
         </div>
         <div class="card">
             <h3>Sets Reminders</h3>
@@ -676,10 +836,10 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
     </div>
 
     <div class="callout callout--green">
-        <p>And you're going to build it using Claude Code — by describing what you want in plain English.</p>
+        <p>And you're going to build it using Claude Code, by describing what you want in plain English.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+
     <span class="slide-num">3</span>
 </div>
 
@@ -724,14 +884,524 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
     </div>
 
     <div class="callout callout--amber" style="margin-top: 12px;">
-        <p><strong style="color: #fbbf24;">It's not a chatbot</strong> — it sees your files. It knows your project. When you say "add a button to the leads page," it knows exactly which file to edit.</p>
+        <p><strong style="color: #fbbf24;">It's not a chatbot.</strong> It sees your files. It knows your project. When you say "add a button to the leads page," it knows exactly which file to edit.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
+
     <span class="slide-num">4</span>
 </div>
 
-<!-- ==================== SLIDE 5: THE ARCHITECTURE ==================== -->
+<!-- ==================== SESSION 1 DIVIDER ==================== -->
+<div class="slide slide--title" style="background: linear-gradient(135deg, #111827 0%, #1e3a5f 100%);">
+    <div class="section-label" style="color: #60a5fa;">Session 1</div>
+    <h1 style="font-size: 44px;">Getting Started with Claude Code</h1>
+    <p class="subtitle">Setting up your editor, installing Claude Code, and logging in</p>
+    <p class="meta">This is where we make sure everyone is up and running</p>
+    <span class="slide-num">5</span>
+</div>
+
+<!-- ==================== SLIDE: WHAT IS A CODE EDITOR ==================== -->
+<div class="slide">
+    <div class="section-label">Session 1, Step 1</div>
+    <h1 class="section-title">What is a Code Editor?</h1>
+    <p class="lead">A code editor is the app where you view and edit your project files. Think of it like Microsoft Word, but for code.</p>
+
+    <div class="card-grid" style="margin-top: 20px;">
+        <div class="card card--highlight" style="padding: 32px;">
+            <h3 style="color: #60a5fa; font-size: 22px; margin-bottom: 12px;">Visual Studio Code (VS Code)</h3>
+            <p style="font-size: 16px; line-height: 1.7;">A free code editor made by Microsoft. The most popular editor in the world. Over 70% of developers use it.</p>
+            <p style="font-size: 16px; margin-top: 12px;"><strong>Download:</strong> <code>code.visualstudio.com</code></p>
+        </div>
+        <div class="card card--highlight" style="padding: 32px;">
+            <h3 style="color: #4ade80; font-size: 22px; margin-bottom: 12px;">Cursor</h3>
+            <p style="font-size: 16px; line-height: 1.7;">An AI-focused code editor built on top of VS Code. Looks and works the same way, with extra AI features built in.</p>
+            <p style="font-size: 16px; margin-top: 12px;"><strong>Download:</strong> <code>cursor.com</code></p>
+        </div>
+    </div>
+
+    <div class="callout" style="margin-top: 24px;">
+        <p><strong style="color: #60a5fa;">Why these two?</strong> They're free, beginner-friendly, and widely supported. There are other editors out there (Sublime Text, WebStorm, Vim) and Claude Code works in all of them. We chose these because they're the easiest starting point.</p>
+    </div>
+
+    <span class="slide-num">6</span>
+</div>
+
+<!-- ==================== SLIDE: OPEN YOUR EDITOR ==================== -->
+<div class="slide">
+    <div class="section-label">Session 1, Step 2</div>
+    <h1 class="section-title">Open Your Editor</h1>
+    <p class="lead">Find the app on your computer and open it. Here's what you'll see:</p>
+
+    <div class="two-col" style="margin-top: 16px;">
+        <div>
+            <h2>On Mac</h2>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num">1</div>
+                <div class="step-content"><p style="font-size: 17px;">Open <strong>Finder</strong></p></div>
+            </div>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num">2</div>
+                <div class="step-content"><p style="font-size: 17px;">Go to <strong>Applications</strong></p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><p style="font-size: 17px;">Double-click <strong>Visual Studio Code</strong> (or <strong>Cursor</strong>)</p></div>
+            </div>
+        </div>
+        <div>
+            <h2>On Windows</h2>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num">1</div>
+                <div class="step-content"><p style="font-size: 17px;">Click the <strong>Start menu</strong> (bottom-left of screen)</p></div>
+            </div>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num">2</div>
+                <div class="step-content"><p style="font-size: 17px;">Search for <strong>Visual Studio Code</strong> (or <strong>Cursor</strong>)</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><p style="font-size: 17px;">Click to open it</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout callout--green" style="margin-top: 24px;">
+        <p style="font-size: 16px;"><strong style="color: #4ade80;">You should see a welcome screen.</strong> It might look overwhelming with lots of panels and icons. That's okay. We only need two things: the file explorer on the left, and the terminal at the bottom.</p>
+    </div>
+
+    <span class="slide-num">7</span>
+</div>
+
+<!-- ==================== SLIDE: OPEN A PROJECT FOLDER ==================== -->
+<div class="slide">
+    <div class="section-label">Session 1, Step 3</div>
+    <h1 class="section-title">Open a Project Folder</h1>
+    <p class="lead">A "project" is just a folder on your computer. Claude Code needs to know which folder to work in.</p>
+
+    <div class="step" style="margin-bottom: 24px; margin-top: 20px;">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">1</div>
+        <div class="step-content">
+            <p style="font-size: 18px;"><strong>If you already have a project folder:</strong></p>
+            <p style="font-size: 16px; color: #9ca3af;">In your editor, go to <strong>File</strong> in the top menu bar, then click <strong>Open Folder</strong>. Navigate to your project folder and select it.</p>
+        </div>
+    </div>
+
+    <div class="step" style="margin-bottom: 24px;">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">2</div>
+        <div class="step-content">
+            <p style="font-size: 18px;"><strong>If you're starting from scratch:</strong></p>
+            <p style="font-size: 16px; color: #9ca3af;">First, create a new folder. Open Finder (Mac) or File Explorer (Windows). Go to your Desktop or Documents. Right-click, choose <strong>New Folder</strong>, and name it something like <code>my-dashboard</code>. Then go back to your editor and open that folder with <strong>File &rarr; Open Folder</strong>.</p>
+        </div>
+    </div>
+
+    <div class="callout callout--amber" style="margin-top: 16px;">
+        <p style="font-size: 16px;"><strong style="color: #fbbf24;">Why does this matter?</strong> When Claude Code starts, it looks at all the files in your open folder. That's how it knows what your project is. If you open the wrong folder, or no folder at all, Claude won't know what you're working on.</p>
+    </div>
+
+    <span class="slide-num">8</span>
+</div>
+
+<!-- ==================== SLIDE: OPEN THE TERMINAL ==================== -->
+<div class="slide">
+    <div class="section-label">Session 1, Step 4</div>
+    <h1 class="section-title">Open the Terminal</h1>
+    <p class="lead">The terminal is a text-based window where you type commands. Your editor has one built in.</p>
+
+    <div class="step" style="margin-top: 24px; margin-bottom: 24px;">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">1</div>
+        <div class="step-content">
+            <p style="font-size: 18px;">In the top menu bar of your editor, click <strong>View</strong></p>
+        </div>
+    </div>
+
+    <div class="step" style="margin-bottom: 24px;">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">2</div>
+        <div class="step-content">
+            <p style="font-size: 18px;">Click <strong>Terminal</strong></p>
+        </div>
+    </div>
+
+    <div class="step" style="margin-bottom: 24px;">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">3</div>
+        <div class="step-content">
+            <p style="font-size: 18px;">A panel appears at the bottom of your editor. This is your terminal. You'll see a blinking cursor waiting for you to type.</p>
+        </div>
+    </div>
+
+    <div class="step">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">4</div>
+        <div class="step-content">
+            <p style="font-size: 18px;">Type <code style="font-size: 20px;">claude</code> and press <strong>Enter</strong></p>
+        </div>
+    </div>
+
+    <div class="callout callout--amber" style="margin-top: 20px;">
+        <p style="font-size: 16px; font-style: normal;"><strong style="color: #fbbf24;">Pro tip:</strong> If you already have Claude Code installed and you see the Claude logo appear, you're good to go. Skip the next slide and jump straight to logging in.</p>
+    </div>
+
+    <div class="callout callout--red" style="margin-top: 12px;">
+        <p style="font-size: 16px; font-style: normal;"><strong style="color: #f87171;">If you see "command not found"</strong> or nothing happens, that's okay. It just means Claude Code isn't installed yet. The next slide walks you through it step by step.</p>
+    </div>
+
+    <span class="slide-num">9</span>
+</div>
+
+<!-- ==================== SLIDE: INSTALL NODE.JS FIRST ==================== -->
+<div class="slide">
+    <div class="section-label">Session 1, Step 5</div>
+    <h1 class="section-title">First: Install Node.js</h1>
+    <p class="lead">Claude Code requires Node.js to run. Node.js is a free tool that lets your computer run JavaScript programs. You only need to install it once.</p>
+
+    <div class="two-col" style="margin-top: 16px;">
+        <div>
+            <h2>Check if you already have it:</h2>
+            <p style="font-size: 16px; color: #9ca3af; margin-bottom: 12px;">In your terminal, type this and press Enter:</p>
+            <pre style="font-size: 18px; padding: 16px; text-align: center;">node --version</pre>
+            <div class="callout callout--green" style="margin-top: 16px;">
+                <p style="font-size: 15px; font-style: normal;"><strong style="color: #4ade80;">See a version number</strong> (like v20.11.0)? You're good. Skip to the next slide.</p>
+            </div>
+            <div class="callout callout--red" style="margin-top: 12px;">
+                <p style="font-size: 15px; font-style: normal;"><strong style="color: #f87171;">See "command not found"?</strong> You need to install Node.js. Follow the steps on the right.</p>
+            </div>
+        </div>
+        <div>
+            <h2>Install Node.js:</h2>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">1</div>
+                <div class="step-content"><p style="font-size: 17px;">Open your web browser</p></div>
+            </div>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">2</div>
+                <div class="step-content"><p style="font-size: 17px;">Go to <code style="font-size: 18px;">nodejs.org</code></p></div>
+            </div>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">3</div>
+                <div class="step-content"><p style="font-size: 17px;">Click the big green <strong>LTS</strong> download button (LTS means "stable version")</p></div>
+            </div>
+            <div class="step" style="margin-bottom: 20px;">
+                <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">4</div>
+                <div class="step-content"><p style="font-size: 17px;">Run the installer. Click Next through all the steps. Accept the defaults.</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">5</div>
+                <div class="step-content"><p style="font-size: 17px;"><strong>Close and reopen your terminal</strong>, then try <code>node --version</code> again</p></div>
+            </div>
+        </div>
+    </div>
+
+    <span class="slide-num">10</span>
+</div>
+
+<!-- ==================== SLIDE: INSTALL CLAUDE CODE ==================== -->
+<div class="slide">
+    <div class="section-label">Session 1, Step 6</div>
+    <h1 class="section-title">Install Claude Code</h1>
+    <p class="lead">Now that Node.js is installed, one command gets you Claude Code.</p>
+
+    <div class="step" style="margin-top: 24px; margin-bottom: 24px;">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">1</div>
+        <div class="step-content">
+            <p style="font-size: 18px;">In your terminal, type this and press Enter:</p>
+            <pre style="font-size: 17px; padding: 16px; margin-top: 8px;">npm install -g @anthropic-ai/claude-code</pre>
+            <p style="font-size: 14px; color: #9ca3af; margin-top: 8px;">This downloads and installs Claude Code globally on your computer. It may take a minute.</p>
+        </div>
+    </div>
+
+    <div class="step" style="margin-bottom: 24px;">
+        <div class="step-num" style="width: 40px; height: 40px; font-size: 18px;">2</div>
+        <div class="step-content">
+            <p style="font-size: 18px;">Verify it worked:</p>
+            <pre style="font-size: 17px; padding: 16px; margin-top: 8px;">claude --version</pre>
+            <p style="font-size: 14px; color: #9ca3af; margin-top: 8px;">You should see a version number like <code>2.1.92</code></p>
+        </div>
+    </div>
+
+    <div class="callout callout--red" style="margin-top: 12px;">
+        <p style="font-size: 15px; font-style: normal;"><strong style="color: #f87171;">Still seeing "claude: command not found"?</strong> This is the #1 issue. It means your system can't find where Claude Code was installed.</p>
+        <p style="font-size: 14px; color: #e5e7eb; margin-top: 8px; font-style: normal;"><strong>Mac fix:</strong> Run: <code style="font-size: 12px;">echo 'export PATH="$HOME/.npm-global/bin:$PATH"' >> ~/.zshrc && source ~/.zshrc</code></p>
+        <p style="font-size: 14px; color: #e5e7eb; margin-top: 4px; font-style: normal;"><strong>Windows fix:</strong> Close PowerShell completely and reopen it. If still broken, restart your computer.</p>
+    </div>
+
+    <div class="callout" style="margin-top: 12px; border-color: #7c3aed; background: rgba(124, 58, 237, 0.08);">
+        <p style="font-size: 15px; font-style: normal;"><strong style="color: #a78bfa;">Stuck? Open <code>claude.ai</code> in your browser</strong> and start a new chat. Paste this: <em>"I'm trying to install Claude Code on my [Mac/Windows]. I ran the install command but I'm getting [your error]. Help me fix it step by step."</em> Claude can debug your specific setup.</p>
+    </div>
+
+    <span class="slide-num">11</span>
+</div>
+
+<!-- ==================== SLIDE 7: ANTHROPIC SUBSCRIPTION VS API ==================== -->
+<div class="slide">
+    <div class="section-label">Setup</div>
+    <h1 class="section-title">Log In to Claude Code</h1>
+    <p class="lead">You do NOT need an API key. Your Anthropic subscription (Max plan) includes Claude Code. Let's log in right now.</p>
+
+    <div class="two-col">
+        <div>
+            <h2 style="margin-top: 8px;">Do this now, step by step:</h2>
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content"><p>Open <strong>VS Code</strong> (or Cursor) &rarr; open the terminal</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content"><p>Type <code>claude</code> and press Enter. You'll see this:</p></div>
+            </div>
+
+            <!-- Screenshot 1: Claude Code startup + /login command -->
+            <pre style="font-size: 12px; line-height: 1.6; padding: 14px 18px; background: #0d1117; border-color: #30363d; margin: 8px 0;">
+<span style="color: #6b7280;">$ </span><span style="color: #4ade80;">claude</span>
+<span style="color: #e8836b;">&#9608;&#9608; &#9608;&#9608;</span>  <strong style="color: #e5e7eb;">Claude Code</strong> <span style="color: #6b7280;">v2.1.92</span>
+<span style="color: #e8836b;">&#9608;&#9608; &#9608;&#9608;</span>  <span style="color: #6b7280;">Opus 4.6 (1M context) &middot; Claude Max</span>
+       <span style="color: #6b7280;">~/Documents</span>
+
+<span style="color: #e5e7eb;">&#10095;</span> <span style="color: #ffffff;">/login</span><span style="color: #4b5563;">&#9608;</span>
+
+  <span style="color: #ffffff;">/login</span>            <span style="color: #6b7280;">Sign in with your Anthropic account</span>
+  <span style="color: #6b7280;">/plugin           Manage Claude Code plugins</span>
+  <span style="color: #6b7280;">/reload-plugins   Activate pending plugin changes</span></pre>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content"><p>Type <code>/login</code>. You'll see the login options:</p></div>
+            </div>
+        </div>
+        <div>
+            <!-- Screenshot 2: Login method selection -->
+            <pre style="font-size: 12px; line-height: 1.6; padding: 14px 18px; background: #0d1117; border-color: #30363d; margin: 28px 0 12px;">
+<span style="color: #e8836b;">&#9608;&#9608; &#9608;&#9608;</span>  <strong style="color: #e5e7eb;">Claude Code</strong> <span style="color: #6b7280;">v2.1.92</span>
+<span style="color: #e8836b;">&#9608;&#9608; &#9608;&#9608;</span>  <span style="color: #6b7280;">Opus 4.6 (1M context) &middot; Claude Max</span>
+
+<span style="background: #30363d; color: #e5e7eb; padding: 2px 6px;"> /login </span>
+
+<span style="color: #60a5fa; font-weight: bold;">Login</span>
+
+<span style="color: #e5e7eb;">Claude Code can be used with your Claude
+subscription or billed based on API usage
+through your Console account.</span>
+
+<span style="color: #9ca3af;">Select login method:</span>
+
+<span style="color: #60a5fa;">&#10095;</span> <strong style="color: #ffffff;">1. Claude account with subscription</strong>
+   <span style="color: #6b7280;">Pro, Max, Team, or Enterprise</span>
+
+  <span style="color: #6b7280;">2. Anthropic Console account</span>
+     <span style="color: #6b7280;">API usage billing</span>
+
+  <span style="color: #6b7280;">3. 3rd-party platform</span>
+     <span style="color: #6b7280;">Amazon Bedrock, Microsoft Foundry, or Vertex AI</span></pre>
+
+            <div class="step">
+                <div class="step-num">4</div>
+                <div class="step-content"><p>Select <strong>option 1</strong>: "Claude account with subscription"</p></div>
+            </div>
+            <div class="step">
+                <div class="step-num">5</div>
+                <div class="step-content"><p>Browser opens &rarr; sign in at claude.ai &rarr; click <strong>Allow</strong></p></div>
+            </div>
+
+            <div class="callout callout--green" style="margin-top: 8px; padding: 12px 20px;">
+                <p style="font-size: 14px;"><strong style="color: #4ade80;">Done.</strong> Your Max plan covers Claude Code. No API key needed.</p>
+            </div>
+
+            <div class="callout callout--amber" style="margin-top: 8px; padding: 12px 20px;">
+                <p style="font-size: 13px;"><strong style="color: #fbbf24;">Seeing errors?</strong> Run <code>/login</code> again and pick option 1. Run <code>claude config</code> to verify.</p>
+            </div>
+        </div>
+    </div>
+
+    <span class="slide-num">12</span>
+</div>
+
+<!-- ==================== SLIDE: HOMEWORK INTRO ==================== -->
+<div class="slide">
+    <div class="section-label" style="color: #fbbf24;">Session 1: Homework</div>
+    <h1 class="section-title">Your Homework: Write the Blueprint</h1>
+    <p class="lead">Before Session 2, you're going to create 4 instruction files. These are the foundation of your entire project. Claude Code will read them and know exactly what to build.</p>
+
+    <div class="card-grid" style="margin-top: 16px;">
+        <div class="card" style="padding: 24px; border-left: 4px solid #60a5fa;">
+            <h3 style="color: #60a5fa;">1. CLAUDE.md</h3>
+            <p>The master file Claude reads automatically. Your project's brain.</p>
+        </div>
+        <div class="card" style="padding: 24px; border-left: 4px solid #4ade80;">
+            <h3 style="color: #4ade80;">2. Design.md</h3>
+            <p>How the app looks. Pages, colors, buttons, layouts.</p>
+        </div>
+        <div class="card" style="padding: 24px; border-left: 4px solid #fbbf24;">
+            <h3 style="color: #fbbf24;">3. Web_Architecture.md</h3>
+            <p>How data flows. Which APIs talk to what. The plumbing.</p>
+        </div>
+        <div class="card" style="padding: 24px; border-left: 4px solid #f87171;">
+            <h3 style="color: #f87171;">4. API_Design.md</h3>
+            <p>Every API call in detail. What we send, what we get back.</p>
+        </div>
+    </div>
+
+    <div class="callout callout--amber" style="margin-top: 16px;">
+        <p style="font-size: 16px; font-style: normal;"><strong style="color: #fbbf24;">Why homework?</strong> Because the quality of these files directly determines how well Claude Code builds your app. Garbage instructions = garbage output. Clear instructions = clean code on the first try.</p>
+    </div>
+
+    <span class="slide-num">34</span>
+</div>
+
+<!-- ==================== SLIDE: CLAUDE.MD DO'S/DON'TS ==================== -->
+<div class="slide">
+    <div class="section-label" style="color: #fbbf24;">Session 1: Homework</div>
+    <h1 class="section-title">CLAUDE.md: The Master File</h1>
+    <p class="lead">This is the ONLY file Claude Code reads automatically. Everything else, you have to point it to. Get this one right.</p>
+
+    <div class="two-col" style="margin-top: 12px;">
+        <div>
+            <h3 style="color: #4ade80;">Do:</h3>
+            <ul style="font-size: 15px; line-height: 2;">
+                <li>Start with what the project IS in 2-3 sentences</li>
+                <li>List your tech stack explicitly</li>
+                <li>Define your data shapes (Lead, Invoice, Project)</li>
+                <li>Describe your folder structure</li>
+                <li>List commands to run the app</li>
+                <li>State rules: "never commit .env"</li>
+                <li>Reference your other docs: "See Design.md for layouts"</li>
+                <li>Keep it under 2 pages</li>
+            </ul>
+        </div>
+        <div>
+            <h3 style="color: #f87171;">Don't:</h3>
+            <ul style="font-size: 15px; line-height: 2;">
+                <li>Write a novel. Claude skims long files.</li>
+                <li>Be vague: "make it nice" means nothing</li>
+                <li>Skip the data shapes. Claude needs to know what a Lead looks like.</li>
+                <li>Forget the rules. Claude will happily commit your API keys if you don't say "never commit .env"</li>
+                <li>Duplicate info from other files. Point to them instead.</li>
+                <li>Use jargon without explaining it</li>
+            </ul>
+        </div>
+    </div>
+
+    <span class="slide-num">35</span>
+</div>
+
+<!-- ==================== SLIDE: DESIGN.MD DO'S/DON'TS ==================== -->
+<div class="slide">
+    <div class="section-label" style="color: #fbbf24;">Session 1: Homework</div>
+    <h1 class="section-title">Design.md: The Visual Blueprint</h1>
+    <p class="lead">This file tells Claude what your app looks like. Without it, Claude picks random colors, random layouts, and random components.</p>
+
+    <div class="two-col" style="margin-top: 12px;">
+        <div>
+            <h3 style="color: #4ade80;">Do:</h3>
+            <ul style="font-size: 15px; line-height: 2;">
+                <li>List every page and its purpose</li>
+                <li>Describe the layout: "metric cards on top, table below, chart at bottom"</li>
+                <li>Define your color palette with hex codes</li>
+                <li>Specify badge colors for each status</li>
+                <li>Describe what buttons exist and what they do</li>
+                <li>Include a sample Claude Code prompt for each page</li>
+            </ul>
+        </div>
+        <div>
+            <h3 style="color: #f87171;">Don't:</h3>
+            <ul style="font-size: 15px; line-height: 2;">
+                <li>Say "make it look modern" with no specifics</li>
+                <li>Forget to define status badge colors. Claude will pick its own.</li>
+                <li>Skip the navigation structure</li>
+                <li>Leave out the empty states ("No leads yet. Sync your Drive.")</li>
+                <li>Assume Claude knows what "clean" or "professional" means to you</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="callout" style="margin-top: 12px;">
+        <p style="font-size: 15px; font-style: normal;"><strong style="color: #60a5fa;">Pro tip:</strong> If you can describe it to a friend over the phone, you can describe it to Claude. "I want 4 boxes at the top showing my key numbers, then a table below with all my leads" is a perfect start.</p>
+    </div>
+
+    <span class="slide-num">36</span>
+</div>
+
+<!-- ==================== SLIDE: WEB_ARCHITECTURE.MD DO'S/DON'TS ==================== -->
+<div class="slide">
+    <div class="section-label" style="color: #fbbf24;">Session 1: Homework</div>
+    <h1 class="section-title">Web_Architecture.md: The Plumbing</h1>
+    <p class="lead">This file maps how data moves through your system. From Google Drive to your dashboard to Gmail.</p>
+
+    <div class="two-col" style="margin-top: 12px;">
+        <div>
+            <h3 style="color: #4ade80;">Do:</h3>
+            <ul style="font-size: 15px; line-height: 2;">
+                <li>Draw a flow diagram (even in text/ASCII)</li>
+                <li>List every API and what it does</li>
+                <li>Explain the request flow: "user clicks button, Flask calls service, service calls API"</li>
+                <li>Document how authentication works</li>
+                <li>List every URL/route in your app</li>
+                <li>Explain why you made key decisions ("why Sheets instead of a database?")</li>
+            </ul>
+        </div>
+        <div>
+            <h3 style="color: #f87171;">Don't:</h3>
+            <ul style="font-size: 15px; line-height: 2;">
+                <li>Skip the diagram. A picture is worth 1000 words, even an ASCII one.</li>
+                <li>Assume Claude knows which layer calls which</li>
+                <li>Forget to document the authentication flow</li>
+                <li>Leave out error scenarios ("what if the token expires?")</li>
+                <li>Mix up "what the app does" with "how the app is built"</li>
+            </ul>
+        </div>
+    </div>
+
+    <span class="slide-num">37</span>
+</div>
+
+<!-- ==================== SLIDE: API_DESIGN.MD DO'S/DON'TS ==================== -->
+<div class="slide">
+    <div class="section-label" style="color: #fbbf24;">Session 1: Homework</div>
+    <h1 class="section-title">API_Design.md: The Recipe Book</h1>
+    <p class="lead">This file documents every API call AND how your data objects relate to each other. It's the most detailed file.</p>
+
+    <div class="two-col" style="margin-top: 12px;">
+        <div>
+            <h3 style="color: #4ade80;">Do:</h3>
+            <ul style="font-size: 15px; line-height: 1.9;">
+                <li>Show the exact API call with code examples</li>
+                <li>Show a sample response (what comes back)</li>
+                <li>List common errors with plain-English fixes</li>
+                <li><strong>Draw an object relationship diagram</strong> showing how Lead, Invoice, and Project connect</li>
+                <li><strong>Define the linking field</strong> (company/client name) and explain why it's fuzzy-matched</li>
+                <li><strong>Document the lifecycle</strong>: lead enters > project created > invoice uploaded > lead auto-converts</li>
+                <li>Explain design decisions ("why names instead of IDs?")</li>
+            </ul>
+        </div>
+        <div>
+            <h3 style="color: #f87171;">Don't:</h3>
+            <ul style="font-size: 15px; line-height: 1.9;">
+                <li>Just link to external docs. Claude needs the details HERE.</li>
+                <li>Skip error handling. Claude will write happy-path-only code.</li>
+                <li><strong>Forget object relationships.</strong> Without them, Claude builds isolated tables that don't talk to each other.</li>
+                <li>Leave out auto-update rules (who updates what when a new record arrives)</li>
+                <li>Skip the "why" behind design decisions. Claude makes better choices when it understands intent.</li>
+            </ul>
+
+            <div class="callout" style="margin-top: 12px; padding: 12px 16px; border-color: #7c3aed; background: rgba(124, 58, 237, 0.08);">
+                <p style="font-size: 13px; font-style: normal;"><strong style="color: #a78bfa;">Key insight:</strong> The object relationships are MORE important than the API calls. Getting Lead > Invoice > Project linking right determines whether your dashboard feels like magic or a disconnected spreadsheet viewer.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout callout--green" style="margin-top: 12px;">
+        <p style="font-size: 15px; font-style: normal;"><strong style="color: #4ade80;">Your homework is to draft all 4 files before Session 2.</strong> They don't have to be perfect. Start with bullet points. You can refine them with Claude: paste your draft and ask "review this and tell me what's missing."</p>
+    </div>
+
+    <span class="slide-num">38</span>
+</div>
+
+<!-- ==================== SESSION 2 DIVIDER ==================== -->
+<div class="slide slide--title" style="background: linear-gradient(135deg, #111827 0%, #1a3d2e 100%);">
+    <div class="section-label" style="color: #4ade80;">Session 2</div>
+    <h1 style="font-size: 44px;">Architecture + Data Pipeline</h1>
+    <p class="subtitle">Google APIs, data schemas, and the ETL pipeline</p>
+    <p class="meta">This is where we wire up the data layer</p>
+    <span class="slide-num">13</span>
+</div>
+
+<!-- ==================== SLIDE 8: THE ARCHITECTURE ==================== -->
 <div class="slide">
     <div class="section-label">Architecture</div>
     <h1 class="section-title">How It All Connects</h1>
@@ -754,8 +1424,8 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         <p><strong style="color: #60a5fa;">Key insight:</strong> Google Drive, Sheets, Gmail, and Calendar share one OAuth credential. One login unlocks all four.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">5</span>
+
+    <span class="slide-num">14</span>
 </div>
 
 <!-- ==================== SLIDE 6: THE FIVE APIs ==================== -->
@@ -805,21 +1475,21 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         </div>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">6</span>
+
+    <span class="slide-num">15</span>
 </div>
 
 <!-- ==================== SLIDE 7: WHAT YOU'LL WALK AWAY WITH ==================== -->
 <div class="slide">
     <div class="section-label">Before We Build</div>
     <h1 class="section-title">What You'll Walk Away With</h1>
-    <p class="lead">By the end of this session, you will have:</p>
+    <p class="lead">By the end of this series, you will have:</p>
 
     <div class="card-grid" style="margin-top: 12px;">
         <div class="card card--highlight">
             <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="6" width="24" height="20" rx="2"/><line x1="4" y1="12" x2="28" y2="12"/></svg></span>
             <h3>A Working Dashboard</h3>
-            <p>Running on your computer right now. Open a browser, see your data. Leads, invoices, projects — all in one place.</p>
+            <p>Running on your computer right now. Open a browser, see your data. Leads, invoices, projects, all in one place.</p>
         </div>
         <div class="card card--highlight">
             <span class="icon"><svg width="32" height="32" viewBox="0 0 32 32" fill="none" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 28V10l2-2h6l2 2v18"/><path d="M16 28V6l2-2h6l2 2v22"/><line x1="2" y1="28" x2="30" y2="28"/></svg></span>
@@ -842,55 +1512,55 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         <p><strong style="color: #4ade80;">This is not a demo you watch and forget.</strong> You leave with a real thing that works, and the ability to make it do more.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">7</span>
+
+    <span class="slide-num">16</span>
 </div>
 
 <!-- ==================== SLIDE 8: PHASE OVERVIEW ==================== -->
 <div class="slide">
     <div class="section-label">The Build Plan</div>
-    <h1 class="section-title">Six Phases. One Hour.</h1>
-    <p class="lead">Each phase builds on the last. By the end, everything is connected.</p>
+    <h1 class="section-title">Six Phases. Three Sessions.</h1>
+    <p class="lead">Each phase builds on the last. Across three working sessions, we'll connect everything.</p>
 
     <div class="step">
         <div class="step-num">1</div>
         <div class="step-content">
-            <p><strong>Google Cloud Auth Setup</strong> — credentials.json, enable 4 APIs, one OAuth flow <span class="badge badge--blue">15 min</span></p>
+            <p><strong>Google Cloud Auth Setup</strong>: credentials.json, enable 4 APIs, one OAuth flow <span class="badge badge--blue">Session 2</span></p>
         </div>
     </div>
     <div class="step">
         <div class="step-num">2</div>
         <div class="step-content">
-            <p><strong>Drive Folders + Master Sheet</strong> — Create intake folders and the master spreadsheet <span class="badge badge--blue">5 min</span></p>
+            <p><strong>Drive Folders + Master Sheet</strong>: Create intake folders and the master spreadsheet <span class="badge badge--blue">Session 2</span></p>
         </div>
     </div>
     <div class="step">
         <div class="step-num">3</div>
         <div class="step-content">
-            <p><strong>ETL Pipeline</strong> — Drive scan &#8594; OpenAI normalization &#8594; cross-reference &#8594; Sheets <span class="badge badge--green">15 min</span></p>
+            <p><strong>ETL Pipeline</strong>: Drive scan &#8594; OpenAI normalization &#8594; cross-reference &#8594; Sheets <span class="badge badge--green">Session 2</span></p>
         </div>
     </div>
     <div class="step">
         <div class="step-num">4</div>
         <div class="step-content">
-            <p><strong>Dashboard Pages</strong> — Overview, leads, invoices, projects with live data <span class="badge badge--green">15 min</span></p>
+            <p><strong>Dashboard Pages</strong>: Overview, leads, invoices, projects with live data <span class="badge badge--amber">Session 3</span></p>
         </div>
     </div>
     <div class="step">
         <div class="step-num">5</div>
         <div class="step-content">
-            <p><strong>Gmail Integration</strong> — Email a lead or send an invoice from the dashboard <span class="badge badge--amber">5 min</span></p>
+            <p><strong>Gmail Integration</strong>: Email a lead or send an invoice from the dashboard <span class="badge badge--amber">Session 3</span></p>
         </div>
     </div>
     <div class="step">
         <div class="step-num">6</div>
         <div class="step-content">
-            <p><strong>Calendar Integration</strong> — Set payment reminders with one click <span class="badge badge--amber">5 min</span></p>
+            <p><strong>Calendar Integration</strong>: Set payment reminders with one click <span class="badge badge--amber">Session 3</span></p>
         </div>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">8</span>
+
+    <span class="slide-num">17</span>
 </div>
 
 <!-- ==================== SLIDE 9: PHASE 1 - AUTH ==================== -->
@@ -903,7 +1573,7 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         <div>
             <div class="step">
                 <div class="step-num">1</div>
-                <div class="step-content"><p><strong>Google Cloud Console</strong> — console.cloud.google.com</p></div>
+                <div class="step-content"><p><strong>Google Cloud Console</strong>: console.cloud.google.com</p></div>
             </div>
             <div class="step">
                 <div class="step-num">2</div>
@@ -915,7 +1585,7 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
             </div>
             <div class="step">
                 <div class="step-num">4</div>
-                <div class="step-content"><p><strong>Download JSON immediately</strong> — you will NOT see the secret again</p></div>
+                <div class="step-content"><p><strong>Download JSON immediately</strong>. You will NOT see the secret again</p></div>
             </div>
             <div class="step">
                 <div class="step-num">5</div>
@@ -937,8 +1607,8 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
         View prompts for this phase
     </button>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">9</span>
+
+    <span class="slide-num">18</span>
 </div>
 
 <!-- ==================== SLIDE 10: PHASE 1 - OPENAI KEY ==================== -->
@@ -959,11 +1629,11 @@ tr:nth-child(even) td { background: rgba(31, 41, 55, 0.4); }
             </div>
             <div class="step">
                 <div class="step-num">3</div>
-                <div class="step-content"><p>Copy it — shown only once</p></div>
+                <div class="step-content"><p>Copy it. Shown only once</p></div>
             </div>
 
             <div class="callout" style="margin-top: 20px;">
-                <p>We use <strong style="color: #60a5fa;">gpt-4o-mini</strong> — a full pipeline run costs less than one cent.</p>
+                <p>We use <strong style="color: #60a5fa;">gpt-4o-mini</strong>. A full pipeline run costs less than one cent.</p>
             </div>
         </div>
         <div>
@@ -987,8 +1657,8 @@ FLASK_SECRET_KEY=random-string</pre>
         </div>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">10</span>
+
+    <span class="slide-num">19</span>
 </div>
 
 <!-- ==================== SLIDE 11: PHASE 2 - DRIVE + SHEETS ==================== -->
@@ -1028,8 +1698,8 @@ BusinessHub/
         View prompts for this phase
     </button>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">11</span>
+
+    <span class="slide-num">20</span>
 </div>
 
 <!-- ==================== SLIDE 12: DATA SCHEMAS ==================== -->
@@ -1075,8 +1745,8 @@ BusinessHub/
         <p><strong style="color: #60a5fa;">The connection:</strong> All three objects link by <strong>company/client name</strong>. When an invoice arrives for "Acme Corp", the pipeline finds the matching lead and project automatically.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">12</span>
+
+    <span class="slide-num">21</span>
 </div>
 
 <!-- ==================== SLIDE 13: PHASE 3 - ETL INTRO ==================== -->
@@ -1088,24 +1758,24 @@ BusinessHub/
     <div class="step">
         <div class="step-num" style="background: #60a5fa;">E</div>
         <div class="step-content">
-            <p><strong>Extract</strong> — Drive API scans folders for new or updated spreadsheets</p>
+            <p><strong>Extract</strong>: Drive API scans folders for new or updated spreadsheets</p>
         </div>
     </div>
     <div class="step">
         <div class="step-num" style="background: #fbbf24; color: #111827;">T</div>
         <div class="step-content">
-            <p><strong>Transform</strong> — OpenAI normalizes messy columns into canonical schemas, then cross-references across all three object types</p>
+            <p><strong>Transform</strong>: OpenAI normalizes messy columns into canonical schemas, then cross-references across all three object types</p>
         </div>
     </div>
     <div class="step">
         <div class="step-num" style="background: #4ade80; color: #111827;">L</div>
         <div class="step-content">
-            <p><strong>Load</strong> — Write clean, linked data to the master Google Sheet</p>
+            <p><strong>Load</strong>: Write clean, linked data to the master Google Sheet</p>
         </div>
     </div>
 
     <div class="callout callout--amber" style="margin-top: 24px;">
-        <p><strong style="color: #fbbf24;">Key teaching moment:</strong> "What we are building is called an ETL pipeline. Real data engineers build these every day. By the end of this session, so will you."</p>
+        <p><strong style="color: #fbbf24;">Key teaching moment:</strong> "What we are building is called an ETL pipeline. Real data engineers build these every day. By the end of this series, so will you."</p>
     </div>
 
     <button class="prompt-btn" onclick="openPromptModal('phase3')">
@@ -1113,8 +1783,8 @@ BusinessHub/
         View prompts for this phase
     </button>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">13</span>
+
+    <span class="slide-num">22</span>
 </div>
 
 <!-- ==================== SLIDE 14: NORMALIZATION ==================== -->
@@ -1158,8 +1828,8 @@ Rows:
         <p><strong style="color: #4ade80;">Why OpenAI?</strong> "Full Name" &#8594; <code>name</code>. "Business Name" &#8594; <code>company</code>. "April 1, 2026" &#8594; "2026-04-01". A language model handles this naturally. Regex would break on the first edge case.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">14</span>
+
+    <span class="slide-num">23</span>
 </div>
 
 <!-- ==================== SLIDE 15: CROSS-REFERENCE ==================== -->
@@ -1186,8 +1856,17 @@ New invoice arrives: <span style="color: #4ade80;">{ client: "Acme Corporation",
         <tr><td>New project</td><td>Match leads + invoices</td><td>Associate existing records</td></tr>
     </table>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">15</span>
+
+    <span class="slide-num">24</span>
+</div>
+
+<!-- ==================== SESSION 3 DIVIDER ==================== -->
+<div class="slide slide--title" style="background: linear-gradient(135deg, #111827 0%, #3d2e1a 100%);">
+    <div class="section-label" style="color: #fbbf24;">Session 3</div>
+    <h1 style="font-size: 44px;">Dashboard + Actions</h1>
+    <p class="subtitle">Building pages, sending emails, setting reminders</p>
+    <p class="meta">This is where it all comes together</p>
+    <span class="slide-num">25</span>
 </div>
 
 <!-- ==================== SLIDE 16: PHASE 4 - DASHBOARD ==================== -->
@@ -1199,7 +1878,7 @@ New invoice arrives: <span style="color: #4ade80;">{ client: "Acme Corporation",
     <div class="card-grid">
         <div class="card">
             <h3>/dashboard</h3>
-            <p>Overview — 4 metric cards (leads, revenue, invoices, projects), revenue chart, recent activity feed, "Sync Drive" button</p>
+            <p>Overview: 4 metric cards (leads, revenue, invoices, projects), revenue chart, recent activity feed, "Sync Drive" button</p>
         </div>
         <div class="card">
             <h3>/leads</h3>
@@ -1217,11 +1896,11 @@ New invoice arrives: <span style="color: #4ade80;">{ client: "Acme Corporation",
 
     <button class="prompt-btn" onclick="openPromptModal('phase4')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 17l6-6-6-6M12 19h8"/></svg>
-        View prompts for this phase — one per page
+        View prompts for this phase, one per page
     </button>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">16</span>
+
+    <span class="slide-num">26</span>
 </div>
 
 <!-- ==================== SLIDE 17: CLAUDE CODE METHOD ==================== -->
@@ -1254,18 +1933,18 @@ New invoice arrives: <span style="color: #4ade80;">{ client: "Acme Corporation",
     </div>
 
     <div class="callout callout--amber" style="margin: 10px 0; padding: 16px 24px;">
-        <p style="font-size: 16px;"><strong style="color: #fbbf24;">When Claude gets it wrong</strong> — this is the best teaching moment. Say: "Not quite — use due_date, not created_at." The audience sees that iteration is normal, not failure.</p>
+        <p style="font-size: 16px;"><strong style="color: #fbbf24;">When Claude gets it wrong</strong>, this is the best teaching moment. Say: "Not quite, use due_date, not created_at." The audience sees that iteration is normal, not failure.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">17</span>
+
+    <span class="slide-num">27</span>
 </div>
 
 <!-- ==================== SLIDE 18: PHASE 5 - GMAIL ==================== -->
 <div class="slide">
     <div class="section-label">Phase 5</div>
     <h1 class="section-title">Gmail Integration</h1>
-    <p class="lead">Email a lead or send an invoice — without leaving the dashboard.</p>
+    <p class="lead">Email a lead or send an invoice, without leaving the dashboard.</p>
 
     <div class="two-col">
         <div>
@@ -1276,7 +1955,7 @@ New invoice arrives: <span style="color: #4ade80;">{ client: "Acme Corporation",
             </div>
             <div class="step">
                 <div class="step-num">2</div>
-                <div class="step-content"><p>Compose modal opens — <strong>pre-filled</strong> with lead's email</p></div>
+                <div class="step-content"><p>Compose modal opens, <strong>pre-filled</strong> with lead's email</p></div>
             </div>
             <div class="step">
                 <div class="step-num">3</div>
@@ -1312,8 +1991,8 @@ POST /api/email/send
         </div>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">18</span>
+
+    <span class="slide-num">28</span>
 </div>
 
 <!-- ==================== SLIDE 19: PHASE 6 - CALENDAR ==================== -->
@@ -1343,7 +2022,7 @@ POST /api/email/send
             </div>
 
             <div class="callout callout--amber" style="margin-top: 20px;">
-                <p><strong style="color: #fbbf24;">The moment it clicks:</strong> The audience sees that the dashboard isn't just displaying data — it's doing things. Real actions in real tools they use every day.</p>
+                <p><strong style="color: #fbbf24;">The moment it clicks:</strong> The audience sees that the dashboard isn't just displaying data. It's doing things. Real actions in real tools they use every day.</p>
             </div>
         </div>
         <div>
@@ -1363,8 +2042,8 @@ POST /api/email/send
         </div>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">19</span>
+
+    <span class="slide-num">29</span>
 </div>
 
 <!-- ==================== SLIDE 20: WHEN IT BREAKS ==================== -->
@@ -1373,7 +2052,7 @@ POST /api/email/send
     <h1 class="section-title">When It Breaks</h1>
 
     <div class="callout callout--red" style="margin-top: 16px;">
-        <p style="font-size: 20px; font-style: normal;"><strong style="color: #f87171;">SAY THIS:</strong> "Watch what I do here — this is the most important part of the demo. I am not fixing code. I am describing the problem in plain English and letting Claude Code figure it out."</p>
+        <p style="font-size: 20px; font-style: normal;"><strong style="color: #f87171;">SAY THIS:</strong> "Watch what I do here. This is the most important part of the demo. I am not fixing code. I am describing the problem in plain English and letting Claude Code figure it out."</p>
     </div>
 
     <h2 style="margin-top: 24px;">Example debugging prompts:</h2>
@@ -1406,34 +2085,34 @@ POST /api/email/send
         <p><strong style="color: #4ade80;">Narrating through a real error is the most valuable thing a non-technical audience can watch.</strong> It shows that errors are normal, and that describing the problem clearly is a real, transferable skill.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">20</span>
+
+    <span class="slide-num">30</span>
 </div>
 
 <!-- ==================== SLIDE 21: ARCHITECTURE RECAP ==================== -->
 <div class="slide">
     <div class="section-label">Under the Hood</div>
     <h1 class="section-title">Clean Architecture</h1>
-    <p class="lead">This is how the app stays organized — so when something breaks, you know exactly where to look.</p>
+    <p class="lead">This is how the app stays organized, so when something breaks, you know exactly where to look.</p>
 
     <p style="font-size: 16px; color: #9ca3af; margin-bottom: 16px;">Every request flows through four layers. Each layer has one job.</p>
 
     <div class="card-grid" style="margin-top: 8px;">
         <div class="card">
             <h3 style="color: #60a5fa;">Route</h3>
-            <p>"What URL was hit?" — Maps URLs to controllers. Thin wiring, nothing else.</p>
+            <p>"What URL was hit?" Maps URLs to controllers. Thin wiring, nothing else.</p>
         </div>
         <div class="card">
             <h3 style="color: #4ade80;">Controller</h3>
-            <p>"What did the user send?" — Reads the request, calls the right service, returns a response.</p>
+            <p>"What did the user send?" Reads the request, calls the right service, returns a response.</p>
         </div>
         <div class="card">
             <h3 style="color: #fbbf24;">Service</h3>
-            <p>"What should happen?" — Business logic, API calls, data processing. The brains.</p>
+            <p>"What should happen?" Business logic, API calls, data processing. The brains.</p>
         </div>
         <div class="card">
             <h3 style="color: #f87171;">Repository</h3>
-            <p>"Where is the data?" — Reads and writes to files or Google Sheets. Data access only.</p>
+            <p>"Where is the data?" Reads and writes to files or Google Sheets. Data access only.</p>
         </div>
     </div>
 
@@ -1445,8 +2124,8 @@ POST /api/email/send
         <p><strong style="color: #60a5fa;">Why this matters:</strong> When something breaks, you know exactly which layer to look at. The route didn't match? The controller read the wrong field? The service called the wrong API? The repository wrote to the wrong file? One layer, one problem.</p>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">21</span>
+
+    <span class="slide-num">31</span>
 </div>
 
 <!-- ==================== SLIDE 22: THREE TAKEAWAYS ==================== -->
@@ -1458,7 +2137,7 @@ POST /api/email/send
         <div class="step" style="margin-bottom: 32px;">
             <div class="step-num" style="width: 44px; height: 44px; font-size: 20px;">1</div>
             <div class="step-content">
-                <p style="font-size: 22px;"><strong>You don't need to understand the code — you need to understand what you want.</strong></p>
+                <p style="font-size: 22px;"><strong>You don't need to understand the code. You need to understand what you want.</strong></p>
                 <p style="color: #9ca3af;">Claude Code writes the code. You direct it. The skill is knowing what your data should look like and what you want to do with it.</p>
             </div>
         </div>
@@ -1467,7 +2146,7 @@ POST /api/email/send
             <div class="step-num" style="width: 44px; height: 44px; font-size: 20px;">2</div>
             <div class="step-content">
                 <p style="font-size: 22px;"><strong>Define your objects. Define your relationships. The rest follows.</strong></p>
-                <p style="color: #9ca3af;">The real work isn't coding — it's deciding what a "lead" is, what an "invoice" is, and how they connect. Once that's clear, the pipeline builds itself.</p>
+                <p style="color: #9ca3af;">The real work isn't coding. It's deciding what a "lead" is, what an "invoice" is, and how they connect. Once that's clear, the pipeline builds itself.</p>
             </div>
         </div>
 
@@ -1480,14 +2159,14 @@ POST /api/email/send
         </div>
     </div>
 
-    <span class="slide-footer">Build Your Personal Business Dashboard</span>
-    <span class="slide-num">22</span>
+
+    <span class="slide-num">32</span>
 </div>
 
 <!-- ==================== SLIDE 23: WHAT'S NEXT ==================== -->
 <div class="slide slide--title">
     <p class="lead" style="margin-bottom: 16px; font-size: 18px; color: #6b7280;">Leave them with this:</p>
-    <h1 style="font-size: 38px; line-height: 1.4;">"You don't need to understand<br>how it works — you just need to<br>know what you want, and where<br>your work lives."</h1>
+    <h1 style="font-size: 38px; line-height: 1.4;">"You don't need to understand<br>how it works. You just need to<br>know what you want, and where<br>your work lives."</h1>
 
     <div style="margin-top: 48px;">
         <p class="lead">What data source would <em>you</em> connect if this was your project?</p>
@@ -1497,7 +2176,11 @@ POST /api/email/send
         <p style="font-size: 15px; color: #6b7280;">Resources shared after session &bull; All code on GitHub &bull; Documentation included</p>
     </div>
 
-    <span class="slide-num">23</span>
+    <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #374151;">
+        <p style="font-size: 16px; color: #9ca3af;"><strong style="color: #fbbf24;">Session 4 (Optional):</strong> Cleanup, polish, and Q&A. Bring your bugs, your questions, and your ideas.</p>
+    </div>
+
+    <span class="slide-num">33</span>
 </div>
 
 <!-- ===== Presentation UI ===== -->
@@ -1557,53 +2240,64 @@ POST /api/email/send
 
     // Click to advance (ignore if modal is open)
     document.addEventListener('click', function (e) {
-        if (e.target.closest('a, button, #prompt-modal-overlay')) return;
+        if (e.target.closest('a, button, .wwcd-footer, #prompt-modal-overlay, #wwcd-modal-overlay')) return;
         if (document.getElementById('prompt-modal-overlay').classList.contains('open')) return;
+        if (document.getElementById('wwcd-modal-overlay').classList.contains('open')) return;
         show(current + 1);
     });
 
-    // Close modal on Escape
+    // Close modals on Escape
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             document.getElementById('prompt-modal-overlay').classList.remove('open');
+            document.getElementById('wwcd-modal-overlay').classList.remove('open');
         }
+    });
+
+    // Inject WWCD footer into every slide
+    slides.forEach(function (slide, i) {
+        var footer = document.createElement('span');
+        footer.className = 'wwcd-footer';
+        footer.setAttribute('onclick', 'openWWCDModal(' + i + ')');
+        footer.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> What would Claude do?';
+        slide.appendChild(footer);
     });
 })();
 
 // ===== Prompt Modal Data =====
 var promptData = {
     phase1: {
-        title: 'Phase 1 — Project Scaffold + Auth',
+        title: 'Phase 1: Project Scaffold + Auth',
         prompts: [
             {
                 label: 'Step 1: Create the project',
                 text: 'Create a new Flask project following the structure in CLAUDE.md. Set up the app factory pattern in app.py with Flask-Login. Create the route, controller, service, and repository directories with __init__.py files. Add config.py that reads from .env using python-dotenv. Include a hardcoded demo user (admin / demo123). Generate requirements.txt.',
-                caveat: 'Make sure credentials.json is in the project root before running. If Claude asks about database setup, tell it we use JSON files and Google Sheets — no database.'
+                caveat: 'Make sure credentials.json is in the project root before running. If Claude asks about database setup, tell it we use JSON files and Google Sheets, not a database.'
             },
             {
                 label: 'Step 2: Login page + protected routes',
                 text: 'Create a login page at /login with username and password fields. On success, redirect to /dashboard. On failure, flash "Invalid username or password." Protect all routes except /login with @login_required. Create base.html with a top nav showing app name, nav links (Dashboard, Leads, Invoices, Projects), and a logout button.',
-                caveat: 'If the login page renders but the form doesn\'t submit, check that the route handles both GET and POST methods. Flask-Login needs a user_loader callback — Claude sometimes forgets this.'
+                caveat: 'If the login page renders but the form doesn\'t submit, check that the route handles both GET and POST methods. Flask-Login needs a user_loader callback. Claude sometimes forgets this.'
             }
         ]
     },
     phase2: {
-        title: 'Phase 2 — Google Services + Drive',
+        title: 'Phase 2: Google Services + Drive',
         prompts: [
             {
                 label: 'Step 1: Google Sheets service',
                 text: 'Create services/sheets_service.py. Authenticate with Google using credentials.json and these OAuth scopes: spreadsheets, drive.readonly, gmail.send, calendar.events. Implement read_tab(tab_name) to read all rows from a tab in the master spreadsheet, and write_tab(tab_name, rows) to write rows. Get the spreadsheet ID from config. Handle token refresh and the first-run browser auth flow.',
-                caveat: 'The first time you run anything that touches Google, a browser window will pop up asking you to authorize. This is normal — click Allow. A token.json file gets saved so it never asks again.'
+                caveat: 'The first time you run anything that touches Google, a browser window will pop up asking you to authorize. This is normal. Click Allow. A token.json file gets saved so it never asks again.'
             },
             {
                 label: 'Step 2: Google Drive service',
                 text: 'Create services/drive_service.py. Use the Google Drive API to scan three folders for Google Spreadsheets. Folder IDs come from .env: DRIVE_LEADS_FOLDER, DRIVE_INVOICES_FOLDER, DRIVE_PROJECTS_FOLDER. Compare each file\'s modifiedTime against a last_synced timestamp in data/sync_state.json. Return a list of new or updated files with their ID, name, and source folder.',
-                caveat: 'Drive folder IDs are in the URL when you open the folder — the long string after /folders/. If "no new files found," double-check that the folder IDs in .env match what\'s in your Drive URL.'
+                caveat: 'Drive folder IDs are in the URL when you open the folder, the long string after /folders/. If "no new files found," double-check that the folder IDs in .env match what\'s in your Drive URL.'
             }
         ]
     },
     phase3: {
-        title: 'Phase 3 — ETL Pipeline',
+        title: 'Phase 3: ETL Pipeline',
         prompts: [
             {
                 label: 'Step 1: OpenAI normalization service',
@@ -1613,7 +2307,7 @@ var promptData = {
             {
                 label: 'Step 2: Pipeline orchestration',
                 text: 'Create services/etl_service.py that runs the full pipeline: scan Drive for new files, read each spreadsheet via Sheets API, normalize with OpenAI based on which folder the file came from, reconcile across all three object types, and write everything back to the master sheet. Create scripts/full_pipeline.py as a standalone CLI entry point. One command: python3 scripts/full_pipeline.py',
-                caveat: 'Run the pipeline once manually before wiring it to the dashboard button. If reconciliation seems off, check the master sheet directly — the data might already be correct and Claude just needs to see it.'
+                caveat: 'Run the pipeline once manually before wiring it to the dashboard button. If reconciliation seems off, check the master sheet directly. The data might already be correct and Claude just needs to see it.'
             },
             {
                 label: 'Step 3: Sync endpoint',
@@ -1623,52 +2317,52 @@ var promptData = {
         ]
     },
     phase4: {
-        title: 'Phase 4 — Dashboard Pages',
+        title: 'Phase 4: Dashboard Pages',
         prompts: [
             {
                 label: 'Main dashboard (/dashboard)',
                 text: 'Build the /dashboard page. Show 4 metric cards: total leads, outstanding invoice amount (sum of unpaid), active projects count, and revenue this month (sum of paid invoices). Add a Chart.js bar chart showing paid invoices grouped by month. Add a recent activity feed showing the last 10 records. Include the "Sync Drive" button. Use the color palette from Design.md.',
-                caveat: 'If the chart doesn\'t render, check that Chart.js is loaded from the CDN in base.html and that the data is passed to the template as JSON. If metrics show zero, the data might not be in Sheets yet — run the pipeline first.'
+                caveat: 'If the chart doesn\'t render, check that Chart.js is loaded from the CDN in base.html and that the data is passed to the template as JSON. If metrics show zero, the data might not be in Sheets yet. Run the pipeline first.'
             },
             {
                 label: 'Leads page (/leads)',
-                text: 'Build the /leads page with metric cards for lead stages. Data table with columns: name, email, company, source, stage, created_at. Stage shown as colored badges — new is blue, contacted is amber, converted is green. Add an "Email" button on rows that have an email address. Add filter buttons by stage above the table.',
-                caveat: 'If the Email button doesn\'t appear on some rows, it\'s because those leads have no email. That\'s by design — the button only shows when there\'s an email to send to.'
+                text: 'Build the /leads page with metric cards for lead stages. Data table with columns: name, email, company, source, stage, created_at. Stage shown as colored badges: new is blue, contacted is amber, converted is green. Add an "Email" button on rows that have an email address. Add filter buttons by stage above the table.',
+                caveat: 'If the Email button doesn\'t appear on some rows, it\'s because those leads have no email. That\'s by design. The button only shows when there\'s an email to send to.'
             },
             {
                 label: 'Invoices page (/invoices)',
-                text: 'Build the /invoices page with metric cards for: total invoiced, total paid, total outstanding, and overdue count. Data table with status badges — draft is gray, sent is blue, paid is green, overdue is red. Add "Send Invoice" and "Set Reminder" action buttons per row.',
+                text: 'Build the /invoices page with metric cards for: total invoiced, total paid, total outstanding, and overdue count. Data table with status badges: draft is gray, sent is blue, paid is green, overdue is red. Add "Send Invoice" and "Set Reminder" action buttons per row.',
                 caveat: 'Overdue detection: compare due_date against today\'s date. If the status is "sent" and due_date has passed, it should show as overdue. Tell Claude this explicitly if it doesn\'t handle it.'
             },
             {
                 label: 'Projects page (/projects)',
                 text: 'Build the /projects page using card layout instead of a table. Each card: project name, client, status badge, budget progress bar showing total_billed divided by budget as a percentage. Show linked lead count and invoice count. Cards expand on click to show associated leads and invoices.',
-                caveat: 'The progress bar color should change: green under 75%, amber at 75-90%, red above 90%. If linked counts show zero, the cross-reference step might not have run — trigger a sync.'
+                caveat: 'The progress bar color should change: green under 75%, amber at 75-90%, red above 90%. If linked counts show zero, the cross-reference step might not have run. Trigger a sync.'
             }
         ]
     },
     phase5: {
-        title: 'Phase 5 — Gmail Integration',
+        title: 'Phase 5: Gmail Integration',
         prompts: [
             {
                 label: 'Step 1: Gmail service',
-                text: 'Create services/gmail_service.py with a send_email(to, subject, body) method. Use the Gmail API with the gmail.send scope — send only, no inbox read access. Build the email using Python\'s email.mime.text module and base64 encode it for the API. Use the same OAuth credentials as the other Google services.',
+                text: 'Create services/gmail_service.py with a send_email(to, subject, body) method. Use the Gmail API with the gmail.send scope, send only, no inbox read access. Build the email using Python\'s email.mime.text module and base64 encode it for the API. Use the same OAuth credentials as the other Google services.',
                 caveat: 'If you get a 403 "Insufficient Permission" error, your token.json was created before gmail.send was in the scopes. Delete token.json and re-run to trigger a fresh auth with all scopes.'
             },
             {
                 label: 'Step 2: Email compose modal',
                 text: 'Add an email compose modal to base.html that can be triggered from any page. Fields: To (pre-filled), Subject (pre-filled based on context), and Body textarea. Send button POSTs to /api/email/send via fetch. Show a success or error toast. Wire all "Email" and "Send Invoice" buttons to open this modal with the right data pre-filled.',
-                caveat: 'The modal should prevent the slide from advancing when clicked. If emails land in spam, that\'s a Google deliverability thing, not a code bug — it\'s expected for new OAuth apps sending their first emails.'
+                caveat: 'The modal should prevent the slide from advancing when clicked. If emails land in spam, that\'s a Google deliverability thing, not a code bug. It\'s expected for new OAuth apps sending their first emails.'
             }
         ]
     },
     phase6: {
-        title: 'Phase 6 — Calendar Integration',
+        title: 'Phase 6: Calendar Integration',
         prompts: [
             {
                 label: 'Step 1: Calendar service',
                 text: 'Create services/calendar_service.py with a create_reminder(title, date, description) method. Create an all-day Google Calendar event on the given date using the Calendar API v3. Set reminders to 24 hours before with both popup and email notifications. Return the event ID and htmlLink so the user can click through.',
-                caveat: 'If you get a 403, same fix as Gmail — delete token.json and re-auth. The event is created on the "primary" calendar. If the user has multiple calendars, it always goes to their main one.'
+                caveat: 'If you get a 403, same fix as Gmail. Delete token.json and re-auth. The event is created on the "primary" calendar. If the user has multiple calendars, it always goes to their main one.'
             },
             {
                 label: 'Step 2: Wire the Set Reminder buttons',
@@ -1725,6 +2419,442 @@ function openPromptModal(phaseKey) {
 function closePromptModal() {
     document.getElementById('prompt-modal-overlay').classList.remove('open');
 }
+
+// ===== WWCD (What Would Claude Do?) =====
+var wwcdData = [
+    /* 0 - Title */
+    {
+        parts: [
+            { text: "I'm joining a working series where we build a Personal Business Dashboard using Claude Code.", type: "context", explanation: "Sets the scene so Claude knows this is part of a series, not a one-off question." },
+            { text: "The dashboard will manage leads, invoices, and projects across multiple businesses using Google Drive, Sheets, Gmail, Calendar, and OpenAI.", type: "specifics", explanation: "Names every API and data object upfront so Claude won't guess or suggest alternatives." },
+            { text: "I'm not a developer.", type: "context", explanation: "Calibrates Claude's language level -- no jargon, more explanation." },
+            { text: "Can you explain what Claude Code is, what we're building, and whether someone like me can actually do this? Be honest and specific.", type: "goal", explanation: "Asks for honesty, not cheerleading, and 'be specific' prevents vague answers." }
+        ]
+    },
+    /* 1 - Problem */
+    {
+        parts: [
+            { text: "I'm an entrepreneur running multiple businesses.", type: "context", explanation: "Establishes who you are so Claude tailors advice to a business owner, not a developer." },
+            { text: "My leads are in random Google Sheets, invoices are in Drive and email, and projects are tracked in my head. I waste hours every week reconciling data manually.", type: "specifics", explanation: "Paints the exact pain point with concrete details so Claude understands the real problem." },
+            { text: "I want to build a personal dashboard that centralizes everything.", type: "goal", explanation: "States the desired outcome clearly so Claude knows what 'done' looks like." },
+            { text: "Can you help me map out exactly what data I have scattered around, and what it would look like if it was all in one place? Ask me specific questions about my businesses.", type: "technique", explanation: "Asks Claude to ask YOU questions rather than guess, producing a tailored answer." }
+        ]
+    },
+    /* 2 - Solution */
+    {
+        parts: [
+            { text: "I want to build a localhost Python dashboard with Flask that:", type: "context", explanation: "Names the framework and runtime so Claude targets the right tech stack." },
+            { text: "(1) pulls spreadsheets from Google Drive folders, (2) uses OpenAI to normalize messy data into clean Lead, Invoice, and Project schemas, (3) cross-references them so uploading an invoice for 'Acme Corp' auto-updates the matching lead, (4) lets me email contacts via Gmail, and (5) sets invoice reminders on Google Calendar.", type: "specifics", explanation: "Lists all 5 capabilities with numbered detail so nothing gets missed." },
+            { text: "Can you break this down into what I need to learn vs what Claude Code can handle for me?", type: "goal", explanation: "Sets realistic expectations about human vs AI roles in the collaboration." }
+        ]
+    },
+    /* 3 - What Is Claude Code */
+    {
+        parts: [
+            { text: "I'm about to use Claude Code to build a Flask dashboard with Google Drive, Sheets, Gmail, Calendar, and OpenAI integration.", type: "context", explanation: "Gives the full project scope so Claude's walkthrough is relevant to your build." },
+            { text: "I've never used Claude Code before. I'm staring at a terminal.", type: "context", explanation: "Describes the exact moment you're in so Claude starts from the right place." },
+            { text: "Can you walk me through my first 5 minutes? What should I say to you first? How do I tell you about my project?", type: "goal", explanation: "Scopes the ask to just the first 5 minutes, not the whole project." },
+            { text: "Show me what a real conversation looks like where I ask you to create a Flask app with routes, controllers, services, and repositories.", type: "technique", explanation: "Requesting a real example teaches through demonstration, not theory." }
+        ]
+    },
+    /* 4 - Session 1 Divider */
+    {
+        parts: [
+            { text: "I'm in Session 1 of a working series where we build a Personal Business Dashboard. Right now we're setting up our development environment: code editor, terminal, Claude Code installation, and login.", type: "context", explanation: "Tells Claude exactly where you are in the multi-session series." },
+            { text: "I've never done any of this before.", type: "context", explanation: "Honest about starting point so Claude doesn't skip foundational steps." },
+            { text: "Can you give me a pep talk? What's the hardest part of this setup, and what should I do if I get stuck?", type: "goal", explanation: "Asks for emotional support AND practical guidance together." },
+            { text: "Remind me that I'm building something real.", type: "technique", explanation: "Prompts Claude to ground the encouragement in the actual project outcome." }
+        ]
+    },
+    /* 5 - What is a Code Editor */
+    {
+        parts: [
+            { text: "I need to use VS Code or Cursor to build a Flask dashboard. I've never used a code editor before.", type: "context", explanation: "Names the tools and your experience level to calibrate the explanation." },
+            { text: "Can you explain what a code editor is, how it's different from Google Docs or Notepad, and why I need one for this project?", type: "goal", explanation: "Asks for comparison to familiar tools, which makes the concept stick." },
+            { text: "Also explain what 'the terminal' is inside a code editor, because I'll need it to run Claude Code and Flask commands like 'python3 app.py' and 'claude'.", type: "specifics", explanation: "Anticipates the next question and includes specific commands you'll run." }
+        ]
+    },
+    /* 6 - Open Your Editor */
+    {
+        parts: [
+            { text: "I just installed VS Code (or Cursor) and opened it for the first time. I see a welcome tab, a sidebar, and some icons I don't recognize.", type: "context", explanation: "Describes exactly what's on screen so Claude can reference specific UI elements." },
+            { text: "I need to get to the point where I can open a project folder and see a terminal at the bottom.", type: "goal", explanation: "Defines the end state so Claude knows what 'done' looks like." },
+            { text: "Can you walk me through the interface? What does the sidebar do? What's the explorer panel? Just tell me the 3 things I need to know to start working on my dashboard project.", type: "technique", explanation: "Constraining to 3 things forces Claude to prioritize instead of overwhelming you." }
+        ]
+    },
+    /* 7 - Open a Project Folder */
+    {
+        parts: [
+            { text: "I need to create a project folder for my Personal Business Dashboard. The project will have Python files, HTML templates, CSS, JavaScript, and config files.", type: "context", explanation: "Names all file types so Claude suggests a sensible folder location and name." },
+            { text: "Can you walk me through: (1) where to create the folder on my computer, (2) what to name it, (3) how to open it in VS Code using File > Open Folder, and (4) why Claude Code needs me to be inside this folder to work?", type: "goal", explanation: "Four numbered sub-questions create a sequential walkthrough." },
+            { text: "What happens if I run 'claude' without opening a folder first?", type: "technique", explanation: "Asking about the failure case helps you understand why the setup matters." }
+        ]
+    },
+    /* 8 - Open the Terminal */
+    {
+        parts: [
+            { text: "I need to open the terminal inside VS Code so I can run 'claude' to start Claude Code. I've never used a terminal before.", type: "context", explanation: "States the goal and experience level so Claude starts from zero." },
+            { text: "Can you explain: (1) how to open it using View > Terminal, (2) what the blinking cursor means, (3) what happens when I type 'claude' and press Enter, and (4) the two possible outcomes: either Claude Code starts (with the logo), or I see 'command not found' which means I need to install it?", type: "goal", explanation: "Covers both success and failure outcomes so you're prepared for either." },
+            { text: "Give me 3 safe practice commands I can try first to get comfortable.", type: "technique", explanation: "Practicing safe commands first builds terminal confidence before the real work." }
+        ]
+    },
+    /* 9 - Install Node.js */
+    {
+        parts: [
+            { text: "I tried to run 'npm install -g @anthropic-ai/claude-code' in my terminal but it says 'npm: command not found.'", type: "context", explanation: "Including the exact error message lets Claude diagnose immediately." },
+            { text: "I'm told I need Node.js first.", type: "context", explanation: "Shows you've done some research, so Claude can skip the basics." },
+            { text: "Can you explain: (1) what Node.js is and why Claude Code needs it, (2) how to check if I already have it with 'node --version', (3) how to download and install it from nodejs.org (the LTS version), and (4) why I need to close and reopen my terminal after installing?", type: "goal", explanation: "Four sequential steps that build on each other for a complete fix." },
+            { text: "I'm on a [Mac/Windows].", type: "specifics", explanation: "OS-specific detail ensures Claude gives the right installation instructions." }
+        ]
+    },
+    /* 10 - Install Claude Code */
+    {
+        parts: [
+            { text: "I have Node.js installed. Now I need to install Claude Code. The command is 'npm install -g @anthropic-ai/claude-code'.", type: "context", explanation: "States what's done and provides the exact command for clarity." },
+            { text: "Can you walk me through: (1) running this command, (2) what to expect while it installs, (3) how to verify it worked with 'claude --version', and (4) if I see 'claude: command not found' after installing, the exact fix for my operating system?", type: "goal", explanation: "Covers the full journey including the most common failure mode." },
+            { text: "I'm building a Flask dashboard and I need this working before I can start.", type: "specifics", explanation: "Adds urgency and context so Claude prioritizes getting you unblocked." },
+            { text: "Also, if I'm completely stuck, can you give me a message to paste into claude.ai to get personalized help?", type: "technique", explanation: "Builds in a fallback plan so you're never truly stuck." }
+        ]
+    },
+    /* 11 - Log In */
+    {
+        parts: [
+            { text: "Claude Code is installed and running. It's asking me to log in. I have an Anthropic account (claude.ai).", type: "context", explanation: "Tells Claude exactly where you are in the flow." },
+            { text: "Can you walk me through: (1) typing '/login' in Claude Code, (2) selecting option 1 'Claude account with subscription' (NOT the API option), (3) what happens in the browser when I click Allow, and (4) how to verify I'm authenticated?", type: "goal", explanation: "Explicitly names the correct option to prevent a common mistake." },
+            { text: "I'm going to use Claude Code to build a Flask app with Google Drive, Sheets, Gmail, Calendar, and OpenAI. I want to make sure my subscription covers this usage.", type: "specifics", explanation: "Asks about subscription coverage upfront to avoid surprises mid-build." }
+        ]
+    },
+    /* 12 - Homework Intro */
+    {
+        parts: [
+            { text: "Before our next session, I need to create 4 markdown instruction files for my Personal Business Dashboard project: CLAUDE.md, Design.md, Web_Architecture.md, and API_Design.md.", type: "goal", explanation: "Lists all 4 deliverables by name so nothing is missed." },
+            { text: "The dashboard will use Flask with a route > controller > service > repository architecture, Google Drive for file intake, Google Sheets as the database, OpenAI for data normalization, Gmail for sending emails, and Google Calendar for reminders.", type: "specifics", explanation: "Full tech stack so Claude writes tailored content for each file." },
+            { text: "Can you help me understand what goes in each file and draft outlines for all four? Start by asking me about my specific businesses so the files are tailored to me.", type: "technique", explanation: "Asks Claude to interview you first so the docs match your real business." }
+        ]
+    },
+    /* 13 - CLAUDE.md */
+    {
+        parts: [
+            { text: "I need to write a CLAUDE.md file for my Personal Business Dashboard. This file gets read automatically by Claude Code every time I start a session.", type: "context", explanation: "Explains what CLAUDE.md does so Claude writes content optimized for that purpose." },
+            { text: "My project uses: Flask (Python), Google Drive API, Google Sheets API, Gmail API, Google Calendar API, OpenAI API (gpt-4o-mini), and a route > controller > service > repository architecture.", type: "specifics", explanation: "Every technology named means Claude includes it in the reference doc." },
+            { text: "My data objects are Lead (name, email, company, source, stage, project, created_at), Invoice (invoice_number, client, amount, due_date, status, email), and Project (name, client, budget, total_billed, deadline, status, sheet_id).", type: "specifics", explanation: "Field-level detail means the CLAUDE.md will have precise schemas." },
+            { text: "Can you draft a complete CLAUDE.md for me? Include the project description, tech stack, data schemas, folder structure, commands, and rules. Keep it under 2 pages.", type: "goal", explanation: "Names every section and sets a length constraint for a focused document." }
+        ]
+    },
+    /* 14 - Design.md */
+    {
+        parts: [
+            { text: "I need to write a Design.md for my dashboard.", type: "context", explanation: "Names the deliverable so Claude knows the output format." },
+            { text: "The app has these pages: /login (username/password form), /dashboard (4 metric cards, Chart.js revenue chart, activity feed, Sync Drive button), /leads (filterable table with stage badges, Edit and Email buttons, project column), /invoices (table with status badges, Edit/Send/Remind buttons, drag-drop PDF upload with OpenAI extraction), /projects (card layout with budget progress bars, linked lead/invoice counts, Sheet link button).", type: "specifics", explanation: "Every page with every component listed means nothing gets left out." },
+            { text: "Colors: primary #2563eb, success #16a34a, warning #d97706, danger #dc2626.", type: "specifics", explanation: "Hex codes ensure visual consistency across the entire app." },
+            { text: "Can you draft the full Design.md with page layouts, badge colors, component specs, and sample Claude Code prompts for building each page?", type: "goal", explanation: "Asking for build prompts means Design.md becomes an actionable blueprint." }
+        ]
+    },
+    /* 15 - Web_Architecture.md */
+    {
+        parts: [
+            { text: "I need to write a Web_Architecture.md for my dashboard.", type: "context", explanation: "Names the deliverable to set expectations for the output." },
+            { text: "The data flows like this: Google Drive folders (/leads, /invoices, /projects) sync locally > ETL script scans for new spreadsheets > OpenAI normalizes messy columns into canonical schemas > OpenAI cross-references (new invoice for 'Acme Corp' updates matching lead to 'converted' and adds to project's total_billed) > writes to Google Sheets (master datastore) > Flask app reads from Sheets > dashboard displays data > user can send email (Gmail API) or set reminder (Calendar API).", type: "specifics", explanation: "Describing the full data flow as a narrative ensures the architecture doc is complete." },
+            { text: "Architecture: route > controller > service > repository.", type: "specifics", explanation: "Names the layered pattern so the doc includes proper separation of concerns." },
+            { text: "Can you draft the full Web_Architecture.md with an ASCII diagram, layer breakdown, request flows, and auth architecture?", type: "goal", explanation: "Requesting specific output formats (ASCII diagram) means you get usable output on the first try." }
+        ]
+    },
+    /* 16 - API_Design.md */
+    {
+        parts: [
+            { text: "I need to write an API_Design.md for my dashboard that covers two things: every API call, AND how my data objects relate to each other.", type: "context", explanation: "Framing it as two concerns (APIs + object design) ensures Claude covers both, not just the API calls." },
+            { text: "Data objects: Lead (name, email, company, source, stage, project, created_at, sheet_id), Invoice (invoice_number, client, amount, due_date, status, email), Project (name, client, budget, total_billed, deadline, status, sheet_id). They all link by company/client name using OpenAI fuzzy matching. When an invoice arrives for 'Acme Corporation', it should find the lead for 'Acme Corp' and the project for 'Acme Corp', update the lead stage to 'converted', and add the invoice amount to the project's total_billed.", type: "specifics", explanation: "Defining every field, the linking mechanism, and a concrete example of cross-referencing gives Claude the full picture of how objects interact." },
+            { text: "External APIs: Google Drive API v3 (scan folders), Google Sheets API v4 (read/write), OpenAI API gpt-4o-mini (normalize + reconcile with JSON response format), Gmail API (send-only scope), Google Calendar API v3 (all-day events). Internal endpoints: GET /api/data, POST /api/sync, POST /api/email/send, POST /api/calendar/remind, PUT /api/leads/:index, PUT /api/invoices/:index, PUT /api/projects/:index, POST /api/invoices/upload, POST /api/invoices/confirm.", type: "specifics", explanation: "Every external API and internal endpoint with HTTP methods listed. Claude produces complete docs when nothing is left to guess." },
+            { text: "Include: an object relationship diagram (ASCII is fine), the lifecycle of a business relationship (lead enters > project created > invoice uploaded > lead converts), design decisions (why company name instead of IDs, why sheet_id on Lead and Project, why total_billed auto-updates), request/response examples for each API, error tables, and instructions for adding a new object type.", type: "goal", explanation: "Asking for the relationship diagram, lifecycle, AND design decisions produces documentation that explains the WHY, not just the WHAT. This is what makes Claude build coherent features instead of disconnected tables." }
+        ]
+    },
+    /* 17 - Session 2 Divider */
+    {
+        parts: [
+            { text: "I'm starting Session 2 of the working series. In Session 1, I set up Claude Code and wrote my 4 instruction files (CLAUDE.md, Design.md, Web_Architecture.md, API_Design.md) as homework.", type: "context", explanation: "Recaps Session 1 so Claude has continuity across the series." },
+            { text: "Now we're going to build the data layer: Google Cloud auth, Drive folder scanning, Sheets read/write, OpenAI normalization pipeline, and cross-reference reconciliation.", type: "goal", explanation: "Previews what's coming so Claude can frame the session." },
+            { text: "Can you explain what we're about to build using a real-world analogy? Like running a mail room where packages come in, get sorted, labeled, and delivered to the right department?", type: "technique", explanation: "Suggesting a specific analogy primes Claude's thinking and makes technical concepts stick." }
+        ]
+    },
+    /* 18 - Architecture */
+    {
+        parts: [
+            { text: "I'm building a Personal Business Dashboard and I need to understand how these 5 APIs connect: Google Drive (file intake), Google Sheets (database), OpenAI (data cleaning + cross-referencing), Gmail (send emails), Google Calendar (reminders).", type: "context", explanation: "Lists all 5 APIs with their roles so the diagram will be accurate." },
+            { text: "Can you draw me an ASCII diagram showing the full data flow?", type: "goal", explanation: "Requesting ASCII art gives you a visual you can paste into documentation." },
+            { text: "Start from when I drop a spreadsheet into a Google Drive folder, through normalization, into the master Sheet, onto the dashboard, and finally when I click 'Email' or 'Set Reminder'.", type: "specifics", explanation: "Traces the complete journey so no step is skipped in the diagram." },
+            { text: "Explain each arrow.", type: "technique", explanation: "Asking Claude to explain each connection turns a diagram into a learning tool." }
+        ]
+    },
+    /* 19 - Five APIs */
+    {
+        parts: [
+            { text: "My dashboard uses 5 APIs and I need to understand each one.", type: "context", explanation: "Frames the ask as understanding, not building, so Claude explains more." },
+            { text: "Here's what they do in my project: (1) Google Drive scans /leads, /invoices, /projects folders for new spreadsheets, (2) Google Sheets is my database with tabs for Leads, Invoices, Projects, (3) OpenAI gpt-4o-mini normalizes messy columns like 'Full Name' into 'name' and fuzzy-matches 'Acme Corp' to 'Acme Corporation', (4) Gmail sends emails with gmail.send scope only, (5) Calendar creates all-day reminder events. All 4 Google APIs share one OAuth credentials.json.", type: "specifics", explanation: "Defining each API's role in YOUR project gets project-specific explanations, not generic docs." },
+            { text: "Can you explain each API's role, what we send, what we get back, and common errors?", type: "goal", explanation: "Three-part questions (input, output, errors) always get complete answers." }
+        ]
+    },
+    /* 20 - Walk Away */
+    {
+        parts: [
+            { text: "When this working series is done, I'll have a Flask app on my computer with: routes/, controllers/, services/, repositories/, models/, scripts/, templates/, static/css and js, and data/ directories. Plus CLAUDE.md, Design.md, Web_Architecture.md, API_Design.md, .env, credentials.json, token.json, requirements.txt, and start.sh.", type: "specifics", explanation: "Lists every directory and file so Claude's explanation is exhaustive." },
+            { text: "Can you walk me through each folder and file, explain what it does, and tell me which ones I'll edit most often vs which ones I can leave alone?", type: "goal", explanation: "Asking 'which do I edit vs leave alone' prioritizes your learning on what matters." }
+        ]
+    },
+    /* 21 - Phase Overview */
+    {
+        parts: [
+            { text: "We're building a Personal Business Dashboard in 6 phases across 3 sessions.", type: "context", explanation: "Sets the scope so Claude frames each phase within the larger plan." },
+            { text: "Phase 1: Google Cloud OAuth for Drive/Sheets/Gmail/Calendar. Phase 2: Drive folder scanning + Sheets service. Phase 3: OpenAI normalization + cross-reference ETL pipeline. Phase 4: Dashboard pages (/dashboard, /leads, /invoices, /projects) with Chart.js, edit modals, email buttons. Phase 5: Gmail integration (send emails from dashboard). Phase 6: Calendar integration (set invoice reminders).", type: "specifics", explanation: "All 6 phases with details so Claude can compare difficulty and flag risks." },
+            { text: "Can you preview each phase, tell me what's hardest, and what I should pay extra attention to?", type: "goal", explanation: "Asking 'what's hardest' surfaces the thing you should prepare for most." }
+        ]
+    },
+    /* 22 - Auth Setup */
+    {
+        parts: [
+            { text: "I need to set up Google Cloud OAuth for my dashboard. I need 4 APIs enabled: Drive, Sheets, Gmail, Calendar.", type: "context", explanation: "Names all 4 APIs so Claude covers every one in the walkthrough." },
+            { text: "I need to create an OAuth Desktop app credential and download credentials.json. The scopes are: spreadsheets, drive.readonly, gmail.send, calendar.events.", type: "specifics", explanation: "Exact scopes prevent Claude from suggesting broader permissions." },
+            { text: "Can you walk me through every click in the Google Cloud Console? I've never been there before.", type: "goal", explanation: "Click-by-click instructions prevent getting lost in an unfamiliar UI." },
+            { text: "Especially warn me about: (1) the moment I need to download the JSON immediately before closing the modal, and (2) adding myself as a test user in the OAuth consent screen.", type: "technique", explanation: "Calling out known danger moments ensures Claude emphasizes them heavily." }
+        ]
+    },
+    /* 23 - OpenAI Key */
+    {
+        parts: [
+            { text: "I need to set up my .env file for the dashboard.", type: "context", explanation: "Names the file type so Claude formats the output correctly." },
+            { text: "Variables I need: MASTER_SHEET_ID (from my Google Sheet URL), PROJECTS_SHEET_ID (a separate sheet for projects), DRIVE_LEADS_FOLDER / DRIVE_INVOICES_FOLDER / DRIVE_PROJECTS_FOLDER (Google Drive folder IDs from URLs), OPENAI_API_KEY (from platform.openai.com), and FLASK_SECRET_KEY.", type: "specifics", explanation: "Every variable by name with its source means Claude can explain where to find each value." },
+            { text: "Can you create the .env file for me and explain exactly where to find each value? Show me how to extract the Sheet ID from a Google Sheets URL and the folder ID from a Drive URL.", type: "goal", explanation: "Asking for the extraction technique teaches you to find these values yourself." }
+        ]
+    },
+    /* 24 - Drive + Sheets */
+    {
+        parts: [
+            { text: "In my dashboard, Google Drive has 3 folders: /leads, /invoices, /projects. Users drop spreadsheets into these folders.", type: "context", explanation: "Describes the real-world usage pattern so Claude designs the right flow." },
+            { text: "My ETL script uses the Drive API to scan for new files by comparing modifiedTime against a sync_state.json timestamp. Then it uses the Sheets API to read the spreadsheet content by file ID.", type: "specifics", explanation: "Describes the full scan-to-read pipeline so Claude implements the right logic." },
+            { text: "Can you explain this flow, write the Drive service that scans folders, and the Sheets service that reads/writes tabs?", type: "goal", explanation: "Asks for explanation AND implementation so you understand what you're getting." },
+            { text: "I need read_tab(tab_name), write_tab(tab_name, rows), and read_tab_from_sheet(sheet_id, tab_name) methods.", type: "specifics", explanation: "Naming methods upfront gives Claude a clear API contract to implement." }
+        ]
+    },
+    /* 25 - Data Schemas */
+    {
+        parts: [
+            { text: "My dashboard has 3 data objects.", type: "context", explanation: "Simple framing so Claude knows exactly how many schemas to define." },
+            { text: "Lead: name, email, company, source, stage (new/contacted/converted), project (linked project name), created_at, sheet_id. Invoice: invoice_number, client, amount, due_date, status (draft/sent/paid/overdue), email. Project: name, client, budget, total_billed, deadline, status (active/completed/on_hold), sheet_id (each project links to its own Google Sheet). They cross-reference by company/client name.", type: "specifics", explanation: "Every field with its type and allowed values means less debugging later." },
+            { text: "Can you create Python dataclasses for all three with from_dict() and to_dict() methods? Then help me define the cross-reference rules.", type: "goal", explanation: "Asking for specific methods gives Claude a clear implementation target." }
+        ]
+    },
+    /* 26 - ETL Pipeline */
+    {
+        parts: [
+            { text: "My dashboard has an ETL pipeline:", type: "context", explanation: "Names the pattern so Claude uses proper ETL terminology." },
+            { text: "Extract (scan Google Drive for new spreadsheets), Transform (send raw data to OpenAI gpt-4o-mini to normalize messy columns into my canonical schema, then cross-reference new records against existing leads/invoices/projects using fuzzy company name matching), Load (write clean data back to the master Google Sheet).", type: "specifics", explanation: "Defines each ETL stage with YOUR specific operations, not generic definitions." },
+            { text: "Can you explain ETL using a mail room analogy, then help me build etl_service.py that orchestrates the full pipeline with partial failure handling?", type: "goal", explanation: "Asking for analogy AND implementation gives you understanding plus working code." },
+            { text: "It should track state in data/sync_state.json.", type: "specifics", explanation: "Specifying the state file means the pipeline can resume after failures." }
+        ]
+    },
+    /* 27 - Normalization */
+    {
+        parts: [
+            { text: "My normalization step sends raw spreadsheet data to OpenAI gpt-4o-mini.", type: "context", explanation: "Names the model so Claude writes prompts optimized for that model." },
+            { text: "For example, a spreadsheet with columns 'Full Name', 'Email Address', 'Business Name', 'How Found', 'Date Added' needs to become Lead objects with fields name, email, company, source, stage, created_at. The dates might be 'April 1, 2026' or '3/28/2026' and need to become '2026-04-01'. Missing fields get defaults (stage='new').", type: "specifics", explanation: "Concrete before-and-after examples give Claude the exact transformation to implement." },
+            { text: "Can you write the OpenAI prompt that does this normalization, using response_format={'type': 'json_object'} for reliable JSON? Show me before and after.", type: "goal", explanation: "Asking for the AI prompt itself (not just Python code) is meta-prompting at its best." }
+        ]
+    },
+    /* 28 - Cross-reference */
+    {
+        parts: [
+            { text: "My reconciliation step is where the magic happens.", type: "context", explanation: "Frames this as the most important feature so Claude gives it extra attention." },
+            { text: "When a new invoice for client 'Acme Corporation' enters the system, OpenAI fuzzy-matches it against my leads (finds 'Acme Corp') and projects (finds 'Website Redesign' with client 'Acme Corp'). Then it updates: lead stage > 'converted', lead.project > 'Website Redesign', project.total_billed += invoice amount.", type: "specifics", explanation: "Walking through a specific example with real data makes the logic unambiguous." },
+            { text: "Can you write the OpenAI reconciliation prompt and the Python code that applies the returned updates?", type: "goal", explanation: "Asks for both the AI prompt and the application code, covering the full feature." },
+            { text: "Handle edge cases like partial name matches and multiple leads for the same company.", type: "technique", explanation: "Asking about edge cases forces Claude to handle boundaries, not just the happy path." }
+        ]
+    },
+    /* 29 - Session 3 Divider */
+    {
+        parts: [
+            { text: "I'm starting Session 3. My data layer is built: Drive scanning, Sheets read/write, OpenAI normalization, cross-referencing.", type: "context", explanation: "Recaps what's done so Claude knows the current state of the codebase." },
+            { text: "Now we build the actual Flask dashboard pages with real data, wire up Gmail for emailing leads and sending invoices, and add Google Calendar reminders for due dates.", type: "goal", explanation: "Previews the full session so Claude can frame each piece." },
+            { text: "Can you preview what each page will look like and what buttons will do? I want to know: when I click 'Email' on a lead, what happens from click to delivered email? When I upload a PDF invoice, how does OpenAI extract the data?", type: "technique", explanation: "Asking about the hardest flows first (email, PDF upload) prevents surprises during the build." }
+        ]
+    },
+    /* 30 - Dashboard */
+    {
+        parts: [
+            { text: "I need to build the /dashboard page for my Flask app.", type: "context", explanation: "Names the specific page being built." },
+            { text: "It should show: 4 metric cards (total leads with stage breakdown, outstanding invoice amount, active projects count, monthly revenue from paid invoices), a Chart.js bar chart showing paid invoices grouped by month, a recent activity feed showing the last 10 records across all objects, and a 'Sync Drive' button that calls POST /api/sync.", type: "specifics", explanation: "Every component listed with its data source prevents Claude from improvising." },
+            { text: "Read all data from data_service which reads from Google Sheets. Follow the route > controller > service pattern. Use the colors from my Design.md.", type: "technique", explanation: "Cross-referencing instruction files keeps Claude consistent across the codebase." }
+        ]
+    },
+    /* 31 - Golden Formula */
+    {
+        parts: [
+            { text: "I'm learning to prompt Claude Code effectively for my dashboard project.", type: "context", explanation: "Frames this as a learning exercise, not a build task." },
+            { text: "Teach me the Context + Goal + Constraints formula with 3 real examples from my project: (1) adding a budget progress bar to project cards, (2) making the leads table filterable by stage, (3) adding a 'Set Reminder' button to overdue invoices.", type: "goal", explanation: "Real examples from YOUR project make the lesson immediately applicable." },
+            { text: "For each example, show me a bad prompt and then the improved version using the formula. Then give me a scenario and ask me to write the prompt myself. Grade my attempt.", type: "technique", explanation: "Bad vs good comparison plus a quiz turns Claude into a tutor, not just a builder." }
+        ]
+    },
+    /* 32 - Gmail */
+    {
+        parts: [
+            { text: "I need to add Gmail integration to my dashboard.", type: "context", explanation: "Names the feature being added." },
+            { text: "When I click 'Email' on a lead row, a compose modal should open pre-filled with the lead's email and a subject line. If the lead has no project linked, show a warning modal asking 'Are you sure?' before proceeding.", type: "specifics", explanation: "Describes the full user flow including the edge case (no project linked)." },
+            { text: "The email sends via POST /api/email/send which calls gmail_service.send_email(to, subject, body). The Gmail API uses gmail.send scope (send only, no inbox access), builds the email with Python email.mime.text, and base64 encodes it.", type: "specifics", explanation: "Exact API scope, encoding, and method names prevent implementation guesswork." },
+            { text: "Can you build the full flow: service, controller, route, modal HTML, and JavaScript?", type: "goal", explanation: "Asking for ALL layers in one prompt prevents missing pieces." }
+        ]
+    },
+    /* 33 - Calendar */
+    {
+        parts: [
+            { text: "I need to add Google Calendar integration to my dashboard.", type: "context", explanation: "Names the feature being added." },
+            { text: "When I click 'Set Reminder' on an invoice row, it should create an all-day Google Calendar event on the due date. The event title should be 'Invoice Due: INV-0042 - Acme Corp ($4,500)'. It should have a 24-hour popup AND email reminder (1440 minutes).", type: "specifics", explanation: "Exact title format and reminder config prevents the most common Calendar API bugs." },
+            { text: "Use the Calendar API v3 events.insert() with start.date and end.date (NOT dateTime). Return the event htmlLink so the user can click to view it.", type: "specifics", explanation: "Specifying date vs dateTime avoids a common Calendar API mistake." },
+            { text: "Can you build calendar_service.py, the controller, the route, and the JavaScript that calls it?", type: "goal", explanation: "Lists every file that needs to be created for the full feature." }
+        ]
+    },
+    /* 34 - When It Breaks */
+    {
+        parts: [
+            { text: "Something broke in my dashboard and I'm seeing an error.", type: "context", explanation: "Sets the scene -- you're in debugging mode, not building mode." },
+            { text: "Instead of just fixing it, teach me the debugging pattern for this project.", type: "goal", explanation: "Asks to TEACH debugging, not just fix one bug -- builds a reusable skill." },
+            { text: "The architecture is route > controller > service > repository. Show me: (1) how to read a Python traceback bottom-to-top, (2) how to figure out which layer the error is in, (3) the 5 most common errors in this project (401 token expired, 403 wrong scope, FileNotFoundError, KeyError on missing field, OpenAI returning bad JSON) and what each one means in plain English.", type: "specifics", explanation: "Naming the 5 most common errors means you'll recognize them instantly next time." },
+            { text: "Then give me a template for describing bugs to Claude Code so I get faster fixes.", type: "technique", explanation: "A reusable bug template saves hours over the lifetime of the project." }
+        ]
+    },
+    /* 35 - Architecture Recap */
+    {
+        parts: [
+            { text: "My dashboard uses a route > controller > service > repository pattern.", type: "context", explanation: "Names the pattern being explained." },
+            { text: "In my project: routes/ maps URLs to controllers (like /leads goes to dashboard_controller.leads_page), controllers/ handle HTTP (read the request, call the right service, return a response), services/ have the business logic (sheets_service reads Google Sheets, gmail_service sends emails, openai_service normalizes data), repositories/ handle data access.", type: "specifics", explanation: "Mapping abstract layers to YOUR actual files makes the pattern concrete." },
+            { text: "Can you explain why this separation matters using a restaurant analogy? And show me what happens when a user visits /invoices, tracing through each layer?", type: "goal", explanation: "An analogy plus a real trace makes abstract architecture tangible." }
+        ]
+    },
+    /* 36 - Takeaways */
+    {
+        parts: [
+            { text: "I just built a Personal Business Dashboard with Claude Code across 3 sessions. It has lead management, invoice tracking with PDF upload, project cards with budget progress bars, Gmail integration, Calendar reminders, and an OpenAI-powered ETL pipeline.", type: "context", explanation: "Lists everything built to anchor the conversation in real accomplishments." },
+            { text: "What are the 3 most important things to remember as I keep building? What mistakes do beginners make after their first project?", type: "goal", explanation: "Learning from others' failures prevents you from making the same ones." },
+            { text: "How do I keep my CLAUDE.md and instruction files updated as the project grows? What should I build next?", type: "technique", explanation: "Asking about doc maintenance prevents the #1 cause of project decay." }
+        ]
+    },
+    /* 37 - What's Next */
+    {
+        parts: [
+            { text: "I have a working Personal Business Dashboard with leads, invoices, projects, Gmail, Calendar, and an OpenAI pipeline.", type: "context", explanation: "States what exists so Claude builds on it, not from scratch." },
+            { text: "I want to keep going.", type: "goal", explanation: "Simple but clear -- signals you're ready for more, not done." },
+            { text: "Instead of telling me what to add, can you ask me about my specific businesses, what takes me the most time each week, and what data I wish I could see at a glance?", type: "technique", explanation: "Refuses to let Claude guess -- forces an interview that produces personalized suggestions." },
+            { text: "Then suggest the 3 highest-impact features I should build next, with specific Claude Code prompts I can use to build each one. Let's have a real conversation about my workflow.", type: "goal", explanation: "Asking for prompts per feature means you walk away ready to build immediately." }
+        ]
+    }
+];
+
+function openWWCDModal(index) {
+    var data = wwcdData[index];
+    if (!data) return;
+
+    var header = document.getElementById('wwcd-modal-title');
+    var body = document.getElementById('wwcd-modal-body');
+
+    header.textContent = 'What would Claude do?';
+    body.innerHTML = '';
+
+    // Build full prompt text from parts
+    var fullPrompt = data.parts.map(function(p) { return p.text; }).join(' ');
+
+    // Toggle button
+    var toggle = document.createElement('button');
+    toggle.className = 'insight-toggle';
+    toggle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Show Insights';
+    body.appendChild(toggle);
+
+    // Label
+    var label = document.createElement('div');
+    label.className = 'modal-prompt-label';
+    label.textContent = 'Paste this into Claude Code or claude.ai';
+    body.appendChild(label);
+
+    // Plain view container
+    var plainView = document.createElement('div');
+    plainView.id = 'wwcd-plain-view';
+    var text = document.createElement('div');
+    text.className = 'modal-prompt-text';
+    text.textContent = fullPrompt;
+    text.addEventListener('click', function () {
+        navigator.clipboard.writeText(fullPrompt).then(function () {
+            text.classList.add('copied');
+            setTimeout(function () { text.classList.remove('copied'); }, 1500);
+        });
+    });
+    plainView.appendChild(text);
+    body.appendChild(plainView);
+
+    // Insights view container (hidden by default)
+    var insightsView = document.createElement('div');
+    insightsView.id = 'wwcd-insights-view';
+    insightsView.style.display = 'none';
+
+    data.parts.forEach(function(part) {
+        var segment = document.createElement('div');
+        segment.className = 'insight-segment insight-segment--' + part.type;
+
+        var segLabel = document.createElement('div');
+        segLabel.className = 'insight-segment__label';
+        segLabel.textContent = part.type;
+        segment.appendChild(segLabel);
+
+        var segText = document.createElement('div');
+        segText.className = 'insight-segment__text';
+        segText.textContent = part.text;
+        segment.appendChild(segText);
+
+        var segExplanation = document.createElement('div');
+        segExplanation.className = 'insight-segment__explanation';
+        segExplanation.textContent = part.explanation;
+        segment.appendChild(segExplanation);
+
+        insightsView.appendChild(segment);
+    });
+
+    // Copy button for insights view
+    var copyBtn = document.createElement('div');
+    copyBtn.className = 'modal-prompt-text';
+    copyBtn.style.cssText = 'cursor:pointer; text-align:center; padding:10px; margin-top:8px; font-size:13px; opacity:0.7;';
+    copyBtn.textContent = 'Click to copy full prompt';
+    copyBtn.addEventListener('click', function () {
+        navigator.clipboard.writeText(fullPrompt).then(function () {
+            copyBtn.textContent = 'Copied!';
+            copyBtn.classList.add('copied');
+            setTimeout(function () {
+                copyBtn.textContent = 'Click to copy full prompt';
+                copyBtn.classList.remove('copied');
+            }, 1500);
+        });
+    });
+    insightsView.appendChild(copyBtn);
+
+    body.appendChild(insightsView);
+
+    // Toggle behavior
+    var insightsOn = false;
+    toggle.addEventListener('click', function () {
+        insightsOn = !insightsOn;
+        if (insightsOn) {
+            plainView.style.display = 'none';
+            insightsView.style.display = 'block';
+            toggle.classList.add('active');
+            toggle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg> Hide Insights';
+        } else {
+            plainView.style.display = 'block';
+            insightsView.style.display = 'none';
+            toggle.classList.remove('active');
+            toggle.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Show Insights';
+        }
+    });
+
+    document.getElementById('wwcd-modal-overlay').classList.add('open');
+}
+
+function closeWWCDModal() {
+    document.getElementById('wwcd-modal-overlay').classList.remove('open');
+}
 </script>
 
 <!-- Prompt Modal -->
@@ -1735,6 +2865,17 @@ function closePromptModal() {
             <button id="prompt-modal-close" onclick="closePromptModal()">&times;</button>
         </div>
         <div id="prompt-modal-body"></div>
+    </div>
+</div>
+
+<!-- WWCD Modal -->
+<div id="wwcd-modal-overlay" onclick="if(event.target===this)closeWWCDModal()">
+    <div id="wwcd-modal">
+        <div id="wwcd-modal-header">
+            <h2 id="wwcd-modal-title"></h2>
+            <button id="wwcd-modal-close" onclick="closeWWCDModal()">&times;</button>
+        </div>
+        <div id="wwcd-modal-body"></div>
     </div>
 </div>
 

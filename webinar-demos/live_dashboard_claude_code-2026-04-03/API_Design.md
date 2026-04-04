@@ -375,43 +375,111 @@ Creates a Google Calendar event.
 
 ---
 
-## Part 3: Data Contracts (Canonical Schemas)
+## Part 3: Data Object Design
+
+### Object Relationship Diagram
+
+```
+                    ┌─────────────┐
+                    │   Project    │
+                    │             │
+                    │  sheet_id ──────── Google Sheet
+                    │  client ◄────┐
+                    └──────┬──────┘
+                           │
+              linked by company/client name (fuzzy)
+                           │
+            ┌──────────────┼──────────────┐
+            ▼              ▼              ▼
+     ┌─────────────┐              ┌─────────────┐
+     │    Lead      │              │   Invoice    │
+     │             │              │             │
+     │  company ───┘              │  client ────┘
+     │  project ◄── auto-filled   │
+     │  sheet_id ──── Google Sheet │
+     └─────────────┘              └─────────────┘
+```
+
+### How Objects Relate
+
+The three objects connect through **company/client name**. This is the glue that holds the system together:
+
+- A **Lead** has a `company` field (e.g., "Acme Corp")
+- An **Invoice** has a `client` field (e.g., "Acme Corporation")
+- A **Project** has a `client` field (e.g., "Acme Corp")
+
+OpenAI handles fuzzy matching so "Acme Corp", "Acme Corporation", and "acme" are all recognized as the same entity.
+
+### The Lifecycle of a Business Relationship
+
+```
+1. Lead enters system (stage: "new")
+   └── company: "Acme Corp"
+
+2. Project created for that client
+   └── Lead.project auto-filled to "Website Redesign"
+   └── Lead.stage stays "new" or "contacted"
+
+3. Invoice uploaded for that client
+   └── Lead.stage auto-updated to "converted"
+   └── Project.total_billed += invoice amount
+   └── Invoice linked to both Lead and Project by client name
+```
+
+### Canonical Schemas
 
 ### Lead
 ```
-Field       Type      Required   Example
-─────       ────      ────────   ───────
-name        string    yes        "Jane Smith"
-email       string    no         "jane@acme.com"
-company     string    yes        "Acme Corp"
-source      string    no         "Referral"
-stage       string    yes        "new" | "contacted" | "converted"
-created_at  string    yes        "2026-04-01" (ISO 8601)
+Field       Type      Required   Example                    Notes
+─────       ────      ────────   ───────                    ─────
+name        string    yes        "Jane Smith"               Contact's full name
+email       string    no         "jane@acme.com"            Used for Email button
+company     string    yes        "Acme Corp"                THE KEY: links to Project + Invoice
+source      string    no         "Referral"                 How the lead was found
+stage       string    yes        "new"                      new | contacted | converted (auto-updated)
+project     string    no         "Website Redesign"         Auto-filled by reconciliation
+created_at  string    yes        "2026-04-01"               ISO 8601
+sheet_id    string    no         "1zF_vg365..."             Google Sheet this lead came from
 ```
 
 ### Invoice
 ```
-Field           Type      Required   Example
-─────           ────      ────────   ───────
-invoice_number  string    yes        "INV-0042"
-client          string    yes        "Acme Corp"
-amount          number    yes        4500.00
-due_date        string    yes        "2026-04-15" (ISO 8601)
-status          string    yes        "draft" | "sent" | "paid" | "overdue"
-email           string    no         "billing@acme.com"
+Field           Type      Required   Example                Notes
+─────           ────      ────────   ───────                ─────
+invoice_number  string    yes        "INV-0042"             Unique identifier
+client          string    yes        "Acme Corp"            THE KEY: links to Lead + Project
+amount          number    yes        4500.00                Dollar amount
+due_date        string    yes        "2026-04-15"           ISO 8601, used for Calendar reminders
+status          string    yes        "sent"                 draft | sent | paid | overdue
+email           string    no         "billing@acme.com"     Used for Send Invoice button
 ```
 
 ### Project
 ```
-Field          Type      Required   Example
-─────          ────      ────────   ───────
-name           string    yes        "Website Redesign"
-client         string    yes        "Acme Corp"
-budget         number    yes        15000.00
-total_billed   number    yes        4500.00
-deadline       string    no         "2026-06-01" (ISO 8601)
-status         string    yes        "active" | "completed" | "on_hold"
+Field          Type      Required   Example                 Notes
+─────          ────      ────────   ───────                 ─────
+name           string    yes        "Website Redesign"      Project name
+client         string    yes        "Acme Corp"             THE KEY: links to Lead + Invoice
+budget         number    yes        15000.00                Total project budget
+total_billed   number    yes        4500.00                 Auto-updated by reconciliation
+deadline       string    no         "2026-06-01"            ISO 8601
+status         string    yes        "active"                active | completed | on_hold
+sheet_id       string    no         "1-zRobLafq..."         Google Sheet linked to this project
 ```
+
+### Design Decisions
+
+**Why company/client name as the link (not IDs)?**
+Because the data comes from human-created spreadsheets. People don't assign IDs to their leads. They write company names. OpenAI's fuzzy matching handles the variations that would break an ID-based system.
+
+**Why `sheet_id` on Lead and Project?**
+Each project can have its own Google Sheet. Leads can be imported from different sheets. The `sheet_id` traces where the data came from and provides a "View Sheet" link in the dashboard.
+
+**Why `project` on Lead is auto-filled?**
+When the reconciliation step finds a project whose `client` matches the lead's `company`, it fills in the `project` field automatically. This means leads are tagged with their project without the user doing anything.
+
+**Why `total_billed` on Project is auto-updated?**
+When a new invoice arrives for a client that matches a project, the reconciliation adds the invoice amount to `total_billed`. The budget progress bar on the dashboard updates automatically.
 
 ---
 
